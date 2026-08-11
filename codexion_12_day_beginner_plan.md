@@ -30,6 +30,18 @@ Monitor
 
 Aim for roughly **5–7 focused hours per day**.
 
+## Core Resource Design Decision
+
+Each compile attempt is a request for a **pair of neighbouring dongles**, not two
+unrelated one-dongle requests. Use one scheduler/arbitration layer to queue these
+pair requests and grant both dongles together only when both are free and their
+cooldowns have expired.
+
+This prevents a coder from holding one dongle while waiting for the other, breaking
+the hold-and-wait condition that can cause a circular deadlock. Each dongle must
+still have mutex-protected state, as required by the subject, but FIFO/EDF priority
+belongs to the pair-request scheduler.
+
 ---
 
 # Day 1 — POSIX Threads
@@ -52,6 +64,22 @@ Aim for roughly **5–7 focused hours per day**.
 4. Let multiple threads increment one shared integer without protection.
 
 The final exercise should expose your first **race condition**.
+
+## Notes
+
+```
+pthread_create()
+    ↓
+system allocates thread resources
+    ↓
+worker finishes
+    ↓
+resources are still retained because the thread is joinable
+    ↓
+pthread_join()
+    ↓
+resources can be released
+```
 
 ## End-of-Day Goal
 
@@ -289,8 +317,14 @@ Store:
 - current availability/owner
 - cooldown deadline
 - mutex
-- condition variable
-- waiting requests / heap
+
+### `t_scheduler`
+
+Store:
+
+- heap of pair-acquisition requests
+- scheduler mutex and condition variable
+- request-order counter
 
 ### `t_sim`
 
@@ -310,6 +344,7 @@ Store:
 - Struct initialization
 - Cleanup
 - Makefile
+- minimal README skeleton (update it throughout the project)
 
 Example valid command:
 
@@ -396,15 +431,24 @@ Special case:
 1 coder = 1 dongle
 ```
 
-## Each Dongle May Need
+## Resource Model
 
 ```text
-availability / owner
-cooldown_until
-mutex
-condition variable
-waiting requests
+t_dongle:
+    availability / owner
+    cooldown_until
+    mutex protecting its state
+
+t_scheduler:
+    heap of pair-acquisition requests
+    mutex and condition variable
+    request-order counter
 ```
+
+Do **not** let a coder acquire one dongle and wait while holding it for the second.
+The scheduler should grant the coder's left and right dongles as one operation once
+both are available and off cooldown. This is the deadlock-prevention strategy you
+will use and explain in the README/defence.
 
 ## Cooldown Logic
 
@@ -439,7 +483,8 @@ Can become available around:
 
 ## End-of-Day Goal
 
-Dongle ownership is thread-safe and cooldown works independently of FIFO/EDF.
+Dongle ownership is thread-safe, cooldown works, and the design can grant a complete
+pair without a coder holding only one dongle.
 
 ---
 
@@ -461,27 +506,27 @@ FIFO grant order:
 A → B → C
 ```
 
-## Resource Request Flow
+## Pair-Request Flow
 
 Conceptually:
 
 ```text
-request dongle
+request left + right dongles together
       ↓
-enter queue
+enter the scheduler heap
       ↓
 wait
       ↓
 become highest-priority request
       ↓
-dongle becomes available
+both dongles become available
       ↓
-cooldown completed
+both cooldowns completed
       ↓
-acquire dongle
+acquire both dongles atomically
 ```
 
-Then integrate two-dongle acquisition:
+Then integrate the pair acquisition:
 
 ```text
 acquire two dongles
@@ -532,7 +577,9 @@ C3 owns D3, waits for D1
 
 Nobody can move.
 
-Choose a deliberate deadlock-prevention strategy and make sure you can explain **why it breaks at least one Coffman condition**.
+Use the pair-request scheduler from Day 7: a coder receives both dongles together
+or neither. Make sure you can explain **why this breaks the hold-and-wait Coffman
+condition**.
 
 Also consider starvation: EDF must keep feasible coders alive rather than indefinitely denying resources.
 
@@ -559,7 +606,10 @@ for every coder:
         print burnout
 ```
 
-Burnout logging needs high timing precision.
+Burnout logging needs high timing precision. Use a timed wait (for example,
+`pthread_cond_timedwait()`) until the nearest burnout deadline or until a state
+change wakes the monitor. Do not use a coarse polling loop: the subject requires the
+burnout message within 10 ms of the actual deadline.
 
 ## Simulation Stop Conditions
 
@@ -612,6 +662,9 @@ Your job is to behave like an evaluator trying to destroy your implementation.
 - compile time longer than burnout
 - FIFO contention
 - EDF contention
+- simultaneous pair requests
+- zero cooldown
+- `number_of_compiles_required = 0` (if your parser accepts it, it should complete immediately)
 - successful completion
 - forced burnout
 - repeated execution
