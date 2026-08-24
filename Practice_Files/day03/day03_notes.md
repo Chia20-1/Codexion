@@ -85,6 +85,14 @@ The default condition-variable clock is `CLOCK_REALTIME`. These exercises use
 `CLOCK_MONOTONIC` is often safer for elapsed durations because changing the
 system clock cannot move it backwards or forwards.
 
+```
+struct timeval pairs with gettimeofday()
+```
+
+```
+struct timespec pairs with clock_gettime() and pthread_cond_timedwait()
+```
+
 ## Codexion deadline model
 
 ```text
