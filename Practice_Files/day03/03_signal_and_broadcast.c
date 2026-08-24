@@ -4,66 +4,68 @@
 */
 
 #include <pthread.h>
-#include <stdio.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #define WORKER_COUNT 4
 
 typedef struct s_shared
 {
-	pthread_mutex_t	mutex;
-	pthread_cond_t	condition;
-	int				permits;
-}t_shared;
+	pthread_mutex_t	*lock;
+	pthread_cond_t	*cond;
+	unsigned int	permits;
+}	t_shared;
 
 typedef struct s_worker
 {
 	int			id;
 	t_shared	*shared;
-}t_worker;
+}	t_worker;
 
-static void	*worker(void *arg)
+void	*worker(void *arg)
 {
-	t_worker	*data;
-
-	data = (t_worker *)arg;
-	pthread_mutex_lock(&data->shared->mutex);
+	t_worker *data = (t_worker *)arg;
+	pthread_mutex_lock(data->shared->lock);
 	while (data->shared->permits == 0)
-		pthread_cond_wait(&data->shared->condition, &data->shared->mutex);
+		pthread_cond_wait(data->shared->cond, data->shared->lock);
 	data->shared->permits--;
-	printf("worker %d passed the gate\n", data->id);
-	pthread_mutex_unlock(&data->shared->mutex);
+	printf("Worker %d passed the gate\n", data->id);
+	pthread_mutex_unlock(data->shared->lock);
 	return (NULL);
 }
 
-static void	grant_one(t_shared *shared)
+void	get_one(t_shared *shared)
 {
-	pthread_mutex_lock(&shared->mutex);
+	pthread_mutex_lock(shared->lock);
 	shared->permits++;
-	printf("main: added one permit and called signal\n");
-	pthread_cond_signal(&shared->condition);
-	pthread_mutex_unlock(&shared->mutex);
+	printf("Main: Added one permit and called signal\n");
+	pthread_cond_signal(shared->cond);
+	pthread_mutex_unlock(shared->lock);
 }
 
-static void	grant_rest(t_shared *shared)
+void	get_rest(t_shared *shared)
 {
-	pthread_mutex_lock(&shared->mutex);
+	pthread_mutex_lock(shared->lock);
 	shared->permits += WORKER_COUNT - 1;
-	printf("main: added the remaining permits and called broadcast\n");
-	pthread_cond_broadcast(&shared->condition);
-	pthread_mutex_unlock(&shared->mutex);
+	printf("Main: Added three permits and broadcasted signals\n");
+	pthread_cond_broadcast(shared->cond);
+	pthread_mutex_unlock(shared->lock);
 }
 
 int	main(void)
 {
-	t_shared	shared;
-	t_worker	workers[WORKER_COUNT];
-	pthread_t	threads[WORKER_COUNT];
-	int			i;
+	pthread_mutex_t		lock;
+	pthread_cond_t		cond;
+	pthread_t			threads[WORKER_COUNT];
+	t_worker			workers[WORKER_COUNT];
+	t_shared			shared;
+	int					i;
 
+	pthread_mutex_init(&lock, NULL);
+	pthread_cond_init(&cond, NULL);
+	shared.lock = &lock;
+	shared.cond = &cond;
 	shared.permits = 0;
-	pthread_mutex_init(&shared.mutex, NULL);
-	pthread_cond_init(&shared.condition, NULL);
 	i = 0;
 	while (i < WORKER_COUNT)
 	{
@@ -73,14 +75,15 @@ int	main(void)
 		i++;
 	}
 	usleep(200000);
-	grant_one(&shared);
-	usleep(250000);
-	grant_rest(&shared);
+	get_one(&shared);
+	usleep(200000);
+	get_rest(&shared);
 	i = 0;
 	while (i < WORKER_COUNT)
-		pthread_join(threads[i++], NULL);
-	pthread_cond_destroy(&shared.condition);
-	pthread_mutex_destroy(&shared.mutex);
-	return (0);
+	{
+		pthread_join(threads[i], NULL);
+		i++;
+	}
+	pthread_mutex_destroy(&lock);
+	pthread_cond_destroy(&cond);
 }
-

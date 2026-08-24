@@ -15,7 +15,7 @@ long long	now_ms()
 	result = 0;
 	gettimeofday(&time, NULL);
 	// Converting seconds: 1 sec = 1000 ms
-	result = result + (time.tv_sec * 1000);
+	result = result + ((long long)time.tv_sec * (long long)1000);
 	// Converting seconds: 1000 microseconds = 1ms
 	result = result + (time.tv_usec / 1000);
 	return (result);
