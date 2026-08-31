@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 16:16:18 by chilim            #+#    #+#             */
-/*   Updated: 2026/08/31 19:28:22 by chilim           ###   ########.fr       */
+/*   Updated: 2026/08/31 21:45:56 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 
 int	main(int argc, char **argv)
 {
-	if(parse_input(argc, argv))
+	t_config	config;
+
+	if(!parse_input(argc, argv, &config))
 		return (1);
 }

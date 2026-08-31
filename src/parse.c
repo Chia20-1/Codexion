@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 19:27:51 by chilim            #+#    #+#             */
-/*   Updated: 2026/08/31 20:32:26 by chilim           ###   ########.fr       */
+/*   Updated: 2026/08/31 21:51:16 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,22 +26,30 @@ static int	ft_strcmp(const char *s1, const char *s2)
 	return (str1[i] - str2[i]);
 }
 
-static bool	check_scheduler(char *str)
+static bool	parse_scheduler(char *str, t_config *config)
 {
 	return (!ft_strcmp(str, "fifo") || !ft_strcmp(str, "edf"));
 }
 
-bool	parse_input(int argc, char **argv)
+bool	parse_input(int argc, char **argv, t_config *config)
 {
 	int		i;
+	bool	is_valid_input;
 
 	if (argc != 9)
 		return (false);
-	i = 0;
+	i = 1;
 	while (i < argc)
 	{
 		if (i == (argc - 1))
-			return (check_scheduler(argv[i]));
+			is_valid_input = parse_scheduler(argv[i], config);
+		else if (i == 1 || i == 6)
+			is_valid_input = parse_integer(i, argv[i], config);
+		else
+			is_valid_input = parse_long_long(i, argv[i], config);
+		if (!is_valid_input)
+			return (false);
 		i++;
 	}
+	return (true);
 }
