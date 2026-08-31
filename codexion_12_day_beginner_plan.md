@@ -308,7 +308,7 @@ Store:
 - last compile start
 - compile count
 - left/right dongle references
-- simulation reference
+- shared data reference (`t_data *`)
 
 ### `t_dongle`
 
@@ -326,7 +326,7 @@ Store:
 - scheduler mutex and condition variable
 - request-order counter
 
-### `t_sim`
+### `t_data`
 
 Store:
 
