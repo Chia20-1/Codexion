@@ -6,25 +6,11 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 19:27:51 by chilim            #+#    #+#             */
-/*   Updated: 2026/08/31 22:05:48 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/01 16:17:38 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "include/codexion.h"
-
-static int	ft_strcmp(const char *s1, const char *s2)
-{
-	size_t			i;
-	unsigned char	*str1;
-	unsigned char	*str2;
-
-	i = 0;
-	str1 = (unsigned char *)s1;
-	str2 = (unsigned char *)s2;
-	while (str1[i] != '\0' && str1[i] == str2[i])
-		i++;
-	return (str1[i] - str2[i]);
-}
 
 static bool	parse_scheduler(char *str, t_config *config)
 {
@@ -32,6 +18,52 @@ static bool	parse_scheduler(char *str, t_config *config)
 		&& ft_strcmp(str, "edf") != 0)
 		return (false);
 	config->scheduler = str;
+	return (true);
+}
+
+static bool	parse_integer(int index, char *str, t_config *config)
+{
+	int	value;
+	int	digit;
+
+	if (*str == '\0')
+		return (false);
+	value = 0;
+	while (*str)
+	{
+		if (*str < '0' || *str > '9')
+			return (false);
+		digit = *str - '0';
+		if (value > (INT_MAX - digit) / 10)
+			return (false);
+		value = value * 10 + digit;
+		str++;
+	}
+	if (index == 1 && value < 1)
+		return (false);
+	set_integer_config_value(value, index, config);
+	return (true);
+}
+
+static bool	parse_long_long(int index, char *str, t_config *config)
+{
+	long long	value;
+	long long	digit;
+
+	if (*str == '\0')
+		return (false);
+	value = 0;
+	while (*str)
+	{
+		if (*str < '0' || *str > '9')
+			return (false);
+		digit = *str - '0';
+		if (value > (LLONG_MAX - digit) / 10)
+			return (false);
+		value = value * 10 + digit;
+		str++;
+	}
+	set_llong_config_value(value, index, config);
 	return (true);
 }
 
