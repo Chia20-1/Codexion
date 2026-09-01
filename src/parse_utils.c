@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/01 15:37:09 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/01 15:50:00 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/01 16:24:18 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,16 @@ int	ft_strcmp(const char *s1, const char *s2)
 	return (str1[i] - str2[i]);
 }
 
-void set_integer_config_value(int value, int index, t_config *config)
+void	set_integer_config_value(int value, int index, t_config *config)
 {
 	if (index == 1)
 		config->number_of_coders = value;
 	else if (index == 6)
 		config->number_of_compiles_required = value;
-	return ;	
+	return ;
 }
 
-void set_llong_config_value(long long value, int index, t_config *config)
+void	set_llong_config_value(long long value, int index, t_config *config)
 {
 	if (index == 2)
 		config->time_to_burnout = value;
