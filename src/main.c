@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 16:16:18 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/01 16:25:01 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/02 20:46:03 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,12 +28,17 @@ static void	print_config(t_config config)
 
 int	main(int argc, char **argv)
 {
-	t_config	config;
+	t_data		data;
 
-	if (!parse_input(argc, argv, &config))
+	data = (t_data){0};
+	if (!parse_input(argc, argv, &data.config))
+		return (1);
+	if (!init_data(&data))
 	{
-		printf("Error");
+		cleanup_data(&data);
 		return (1);
 	}
-	print_config(config);
+	run_simulation(&data);
+	cleanup_data(&data);
+	return (0);
 }
