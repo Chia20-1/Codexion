@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 20:31:55 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/03 20:52:14 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/03 21:12:07 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,13 +98,13 @@ static bool	init_monitor(t_data *data)
 
 bool	init_data(t_data *data)
 {
-	if (!init_coders(data))
+	if (!init_coders(data)
+		|| !init_dongles(data)
+		|| !init_scheduler(data)
+		|| !init_monitor(data))
+	{
+		cleanup_data(data);
 		return (false);
-	if (!init_dongles(data))
-		return (false);
-	if (!init_scheduler(data))
-		return (false);
-	if (!init_monitor(data))
-		return (false);
+	}
 	return (true);
 }
