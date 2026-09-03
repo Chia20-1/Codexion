@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 20:31:55 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/03 19:43:21 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/03 20:52:14 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,24 @@ static bool	init_scheduler(t_data *data)
 	return (true);
 }
 
+static bool	init_monitor(t_data *data)
+{
+	t_monitor	*monitor;
+
+	monitor = &data->monitor;
+	monitor->should_stop = false;
+	if (!pthread_mutex_init(&monitor->state_mutex, NULL))
+		return (false);
+	monitor->has_state_mutex = true;
+	if (!pthread_mutex_init(&monitor->log_output_mutex, NULL))
+		return (false);
+	monitor->has_log_mutex = true;
+	if (!pthread_mutex_init(&monitor->wakeup_cond, NULL))
+		return (false);
+	monitor->has_wakeup_cond = true;
+	return (true);
+}
+
 bool	init_data(t_data *data)
 {
 	if (!init_coders(data))
@@ -86,7 +104,7 @@ bool	init_data(t_data *data)
 		return (false);
 	if (!init_scheduler(data))
 		return (false);
-	if (init_monitor(data))
+	if (!init_monitor(data))
 		return (false);
 	return (true);
 }
