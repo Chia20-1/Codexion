@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 16:16:18 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/02 20:46:03 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/03 18:03:59 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,7 @@ int	main(int argc, char **argv)
 	if (!parse_input(argc, argv, &data.config))
 		return (1);
 	if (!init_data(&data))
-	{
-		cleanup_data(&data);
 		return (1);
-	}
 	run_simulation(&data);
 	cleanup_data(&data);
 	return (0);

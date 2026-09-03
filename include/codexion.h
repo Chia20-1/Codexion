@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/01 17:13:36 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/03 19:45:58 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,9 @@
 # include <pthread.h>
 # include <stdbool.h>
 # include <limits.h>
-# include <stddef.h>
+# include <stdlib.h>
+# include <stdint.h>
+// # include <stddef.h>
 
 /* ******************************************************** */
 /*                    STRUCT CONTAINERS                     */
@@ -56,6 +58,7 @@ struct s_dongle
 	t_coder				*current_owner;
 	long long			cooldown_deadline;
 	pthread_mutex_t		mutex;
+	bool				has_mutex;
 };
 
 struct s_monitor
@@ -83,6 +86,8 @@ struct s_scheduler
 	unsigned long	arrival_counter;
 	pthread_mutex_t	request_queue_mutex;
 	pthread_cond_t	request_queue_changed;
+	bool			has_mutex;
+	bool			has_cond;
 };
 
 struct s_data
@@ -102,5 +107,13 @@ int		ft_strcmp(const char *s1, const char *s2);
 void	set_integer_config_value(int value, int index, t_config *config);
 void	set_llong_config_value(long long value, int index, t_config *config);
 bool	parse_input(int argc, char **argv, t_config *config);
+
+/* ******************************************************** */
+/*                      INITIALIZE                          */
+/* ******************************************************** */
+void	*ft_calloc(size_t nmemb, size_t size);
+bool	init_scheduler_mutex(t_data *data);
+bool	init_scheduler_cond(t_data *data);
+bool	init_data(t_data *data);
 
 #endif
