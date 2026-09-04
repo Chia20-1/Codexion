@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 17:52:37 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/03 18:46:09 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/04 14:58:36 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ bool	init_scheduler_cond(t_data *data)
 	t_scheduler	*scheduler;
 
 	scheduler = &data->scheduler;
-	if (pthread_cond_init(&scheduler->request_queue_changed, NULL) != 0)
+	if (pthread_cond_init(&scheduler->request_queue_cond, NULL) != 0)
 		return (false);
 	scheduler->has_cond = true;
 	return (true);

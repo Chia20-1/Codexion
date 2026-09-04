@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 20:31:55 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/03 21:12:07 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/04 14:56:07 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,13 +84,13 @@ static bool	init_monitor(t_data *data)
 
 	monitor = &data->monitor;
 	monitor->should_stop = false;
-	if (!pthread_mutex_init(&monitor->state_mutex, NULL))
+	if (pthread_mutex_init(&monitor->state_mutex, NULL) != 0)
 		return (false);
 	monitor->has_state_mutex = true;
-	if (!pthread_mutex_init(&monitor->log_output_mutex, NULL))
+	if (pthread_mutex_init(&monitor->log_output_mutex, NULL) != 0)
 		return (false);
 	monitor->has_log_mutex = true;
-	if (!pthread_mutex_init(&monitor->wakeup_cond, NULL))
+	if (pthread_cond_init(&monitor->wakeup_cond, NULL) != 0)
 		return (false);
 	monitor->has_wakeup_cond = true;
 	return (true);

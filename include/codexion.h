@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/03 19:45:58 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/04 15:46:33 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,10 +64,12 @@ struct s_dongle
 struct s_monitor
 {
 	bool				should_stop;
-	pthread_mutex_t		stop_flag_mutex;
+	pthread_mutex_t		state_mutex;
 	pthread_mutex_t		log_output_mutex;
-	pthread_mutex_t		monitor_event_mutex;
-	pthread_cond_t		monitor_wakeup_cond;
+	pthread_cond_t		wakeup_cond;
+	bool				has_state_mutex;
+	bool				has_log_mutex;
+	bool				has_wakeup_cond;
 };
 
 struct s_request
@@ -85,7 +87,7 @@ struct s_scheduler
 	int				heap_capacity;
 	unsigned long	arrival_counter;
 	pthread_mutex_t	request_queue_mutex;
-	pthread_cond_t	request_queue_changed;
+	pthread_cond_t	request_queue_cond;
 	bool			has_mutex;
 	bool			has_cond;
 };
@@ -115,5 +117,10 @@ void	*ft_calloc(size_t nmemb, size_t size);
 bool	init_scheduler_mutex(t_data *data);
 bool	init_scheduler_cond(t_data *data);
 bool	init_data(t_data *data);
+
+/* ******************************************************** */
+/*                        CLEAN UP                          */
+/* ******************************************************** */
+void	cleanup_data(t_data *data);
 
 #endif
