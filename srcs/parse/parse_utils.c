@@ -6,25 +6,11 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/01 15:37:09 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/01 16:24:18 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/04 16:46:10 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "include/codexion.h"
-
-int	ft_strcmp(const char *s1, const char *s2)
-{
-	size_t			i;
-	unsigned char	*str1;
-	unsigned char	*str2;
-
-	i = 0;
-	str1 = (unsigned char *)s1;
-	str2 = (unsigned char *)s2;
-	while (str1[i] != '\0' && str1[i] == str2[i])
-		i++;
-	return (str1[i] - str2[i]);
-}
 
 void	set_integer_config_value(int value, int index, t_config *config)
 {

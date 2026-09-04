@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/04 15:46:33 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/04 16:46:44 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <limits.h>
 # include <stdlib.h>
 # include <stdint.h>
+# include <string.h>
 // # include <stddef.h>
 
 /* ******************************************************** */
@@ -105,7 +106,6 @@ struct s_data
 /* ******************************************************** */
 /*                      PARSE INPUT                         */
 /* ******************************************************** */
-int		ft_strcmp(const char *s1, const char *s2);
 void	set_integer_config_value(int value, int index, t_config *config);
 void	set_llong_config_value(long long value, int index, t_config *config);
 bool	parse_input(int argc, char **argv, t_config *config);
@@ -122,5 +122,9 @@ bool	init_data(t_data *data);
 /*                        CLEAN UP                          */
 /* ******************************************************** */
 void	cleanup_data(t_data *data);
+
+/* ******************************************************** */
+/*                         THREAD                           */
+/* ******************************************************** */
 
 #endif

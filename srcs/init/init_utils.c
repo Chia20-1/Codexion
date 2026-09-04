@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 17:52:37 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/04 14:58:36 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/04 16:43:42 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,7 @@ void	*ft_calloc(size_t nmemb, size_t size)
 	ptr = malloc(total);
 	if (!ptr)
 		return (NULL);
-	i = 0;
-	while (i < total)
-		ptr[i++] = 0;
+	memset(ptr, 0, total);
 	return (ptr);
 }
 

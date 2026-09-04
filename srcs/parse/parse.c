@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 19:27:51 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/01 16:17:38 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/04 16:46:01 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 static bool	parse_scheduler(char *str, t_config *config)
 {
-	if (ft_strcmp(str, "fifo") != 0
-		&& ft_strcmp(str, "edf") != 0)
+	if (strcmp(str, "fifo") != 0
+		&& strcmp(str, "edf") != 0)
 		return (false);
 	config->scheduler = str;
 	return (true);
