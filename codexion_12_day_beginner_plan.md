@@ -370,31 +370,171 @@ The program validates arguments and initializes/cleans its data structures corre
 
 # Day 6 — Coder Threads and Logging
 
-Create:
+## Goal and Scope
+
+Today, connect the data created on Day 5 to real threads. By the end of the day,
+the program should create `N` coder threads and one placeholder monitor thread,
+start them safely, produce serialized logs, join every created thread, and only
+then clean the shared data.
+
+Day 6 is about **thread lifecycle and logging**, not correct dongle arbitration.
+It is acceptable to fake the two dongle-acquisition messages today. Leave these
+features for their later days:
+
+- Real dongle ownership and cooldown: Day 7
+- Heap-backed FIFO arbitration: Day 8
+- EDF scheduling and final deadlock strategy: Day 9
+- Burnout detection and final stop conditions: Day 10
+
+## What You Should Understand Before Coding
+
+Be able to explain this lifecycle:
 
 ```text
-N coder threads
-1 monitor thread
+initialize all shared data
+        ↓
+create threads
+        ↓
+release a common start gate
+        ↓
+threads run concurrently
+        ↓
+request them to stop when necessary
+        ↓
+join every successfully created thread
+        ↓
+destroy mutexes/conditions and free memory
 ```
 
-Then join and clean them correctly.
+`pthread_create()` may let the new thread run immediately. Therefore, never
+create a thread before all data that it may access has been initialized.
 
-## Implement the Coder Lifecycle
+`pthread_t` itself does not need `pthread_*_init()`. `pthread_create()` writes
+the thread handle into it. A successfully created joinable thread must later be
+passed to `pthread_join()`.
 
-Conceptually:
+## Day 6 Shared-State Contract
+
+Decide which mutex protects each value before writing thread code:
+
+| State | Protection on Day 6 |
+|---|---|
+| `monitor.should_stop` | `monitor.state_mutex` |
+| `monitor.simulation_started` | `monitor.state_mutex` |
+| `data.start_time` | Set under `state_mutex` before start broadcast; read afterward |
+| `coder.last_compile_start` | `monitor.state_mutex` |
+| `coder.compile_count` | `monitor.state_mutex` |
+| Terminal output | `monitor.log_output_mutex` |
+| Thread-created flags | Main thread only, before workers are joined |
+
+Do not sometimes read a shared value with its mutex and sometimes without it.
+That would still be a data race.
+
+## Step 1 — Add Thread Lifecycle Fields
+
+Choose where the thread handles and creation flags live. A simple beginner-friendly
+design is one handle per coder and one handle in the monitor:
+
+```c
+struct s_coder
+{
+	/* existing fields */
+	pthread_t	thread;
+	bool		thread_created;
+};
+
+struct s_monitor
+{
+	/* existing fields */
+	pthread_t	thread;
+	bool		thread_created;
+	bool		simulation_started;
+};
+```
+
+The exact field order is your choice. Because `t_data` is zero-initialized and
+the coder array is allocated with `ft_calloc()`, both creation flags initially
+start as `false`.
+
+Why keep a creation flag?
 
 ```text
-compile
-debug
-refactor
-repeat
+create coder 1: success
+create coder 2: success
+create coder 3: failure
 ```
 
-You can still fake resource acquisition at first.
+Only coder 1 and coder 2 have valid thread handles. The failure path must wake
+and join those two threads, but must not try to join coder 3.
 
-## Implement Serialized Logging
+Do not destroy or free a `pthread_t`. Joining is the matching lifecycle operation.
 
-Expected messages:
+## Step 2 — Add the Day 6 Function Prototypes
+
+Plan the public interface before filling the source files. Names may differ, but
+you will likely need functions with these responsibilities:
+
+```c
+long long	get_time_ms(void);
+long long	get_elapsed_ms(t_data *data);
+void		log_status(t_coder *coder, const char *status);
+void		*coder_routine(void *argument);
+void		*monitor_routine(void *argument);
+bool		run_simulation(t_data *data);
+```
+
+Keep helpers used by only one `.c` file `static`. Only shared functions belong in
+`codexion.h`.
+
+## Step 3 — Implement Millisecond Time Helpers in `time.c`
+
+Use `gettimeofday()` to obtain an absolute millisecond value:
+
+```text
+milliseconds = seconds * 1000 + microseconds / 1000
+```
+
+Important details:
+
+- Use `long long` in the multiplication.
+- A displayed timestamp is `current_time - data->start_time`.
+- Do not set `start_time` during `init_data()`. Thread creation takes time, so set
+  it immediately before releasing all threads through the start gate.
+- Check the return value of `gettimeofday()` if you design your helper to report
+  failure.
+
+For Day 6, implement a millisecond sleep helper using `usleep()` in small chunks.
+Avoid converting an arbitrarily large millisecond value into one large
+microsecond value, because that conversion can overflow the type accepted by
+`usleep()`.
+
+A useful conceptual loop is:
+
+```text
+end = current time + requested duration
+while current time is before end:
+    sleep for a small remaining chunk
+```
+
+Later, this helper should also check `should_stop` between chunks so coder threads
+can exit promptly after burnout. Do not chase Day 10 precision yet.
+
+### Time Helper Check
+
+Write a temporary test or use a small simulation duration:
+
+```text
+before = get_time_ms()
+sleep approximately 50 ms
+after = get_time_ms()
+```
+
+Verify that `after - before` is approximately 50 ms, allowing normal scheduler
+delay.
+
+## Step 4 — Implement Serialized Logging in `log.c`
+
+The final project accepts only these state messages:
 
 ```text
 timestamp id has taken a dongle
@@ -404,11 +544,383 @@ timestamp id is refactoring
 timestamp id burned out
 ```
 
-Use one mutex around output so two threads cannot mix their messages.
+For a normal Day 6 action logger:
+
+```text
+lock log_output_mutex
+calculate elapsed timestamp
+print one complete line
+unlock log_output_mutex
+```
+
+Keep the mutex locked for the entire line, not separately around each value.
+Otherwise two threads could produce output such as:
+
+```text
+12 13 1 2 is compiling
+```
+
+Use exact status strings so you do not spread slightly different spellings across
+the program. For example, pass `"is debugging"` to one logger instead of creating
+a different printing function for every status.
+
+Do not keep the logging mutex locked while sleeping or doing coder work. Logging
+should hold it only long enough to print one line.
+
+The Day 10 monitor will add the stronger rule that no ordinary messages may print
+after burnout. For today, focus on non-interleaved lines and use one consistent
+locking order whenever a function needs both `state_mutex` and
+`log_output_mutex`.
+
+## Step 5 — Build a Start Gate
+
+Without a start gate, coder 1 may begin compiling while main is still creating
+coder 20. That gives later-created coders less time before their first burnout
+deadline.
+
+Initialize:
+
+```text
+simulation_started = false
+should_stop = false
+```
+
+At the beginning of every thread routine:
+
+```text
+lock state_mutex
+while simulation has not started AND stop was not requested:
+    wait on wakeup_cond using state_mutex
+remember whether stop was requested
+unlock state_mutex
+
+if stop was requested:
+    return from the thread
+```
+
+Always use `while`, not `if`, around `pthread_cond_wait()`. Condition variables may
+wake spuriously, and a broadcast only means that the predicate **may** have
+changed.
+
+After all thread creations succeed, main releases the start gate:
+
+```text
+lock state_mutex
+start_time = get_time_ms()
+for every coder:
+    last_compile_start = start_time
+simulation_started = true
+broadcast wakeup_cond
+unlock state_mutex
+```
+
+The predicate and broadcast are performed while holding the same mutex. This
+prevents a thread from missing the transition between checking the predicate and
+going to sleep.
+
+## Step 6 — Write a Temporary Coder Routine in `coder.c`
+
+Pass a pointer to the actual coder, not the address of the loop variable:
+
+```c
+pthread_create(&coder->thread, NULL, coder_routine, coder);
+```
+
+Do **not** do this:
+
+```c
+pthread_create(&coder->thread, NULL, coder_routine, &i);
+```
+
+All threads would share the same changing `i`.
+
+Inside the routine:
+
+1. Cast `argument` back to `t_coder *`.
+2. Wait at the common start gate.
+3. If startup was cancelled, return `NULL`.
+4. Repeat a finite temporary lifecycle.
+5. Return `NULL`.
+
+For Day 6 only, a finite fake lifecycle may be:
+
+```text
+while this coder has not completed the requested count:
+    log "has taken a dongle"          ← fake for now
+    log "has taken a dongle"          ← fake for now
+
+    under state_mutex:
+        last_compile_start = current absolute time
+    log "is compiling"
+    sleep time_to_compile
+
+    under state_mutex:
+        increment compile_count
+        broadcast wakeup_cond
+
+    log "is debugging"
+    sleep time_to_debug
+
+    log "is refactoring"
+    sleep time_to_refactor
+```
+
+This is scaffolding, not the final simulation. In particular:
+
+- It does not really acquire dongles.
+- It does not enforce cooldown.
+- It does not arbitrate requests.
+- It does not correctly handle the final one-coder behavior.
+- Final completion stopping will be refined on Day 10.
+
+Protect `compile_count` and `last_compile_start` now because the real monitor will
+read them concurrently later. After changing data relevant to the monitor,
+broadcast `wakeup_cond` so this communication pattern is already in place.
+
+Do not hold `state_mutex` during compile, debug, or refactor sleeps.
+
+## Step 7 — Create a Placeholder Monitor Routine in `monitor.c`
+
+Day 10 implements deadline selection and burnout. Today, the monitor thread only
+needs a safe lifecycle without busy waiting:
+
+```text
+lock state_mutex
+while simulation has not started AND stop was not requested:
+    wait on wakeup_cond
+while stop was not requested:
+    wait on wakeup_cond
+unlock state_mutex
+return NULL
+```
+
+The loop must re-check `should_stop` after every wakeup. Coder state broadcasts may
+wake the monitor even though the simulation should continue.
+
+This placeholder proves that you can create, wake, stop, and join the separate
+monitor thread. Do not add a polling loop such as this:
+
+```c
+while (!should_stop)
+	usleep(1000);
+```
+
+## Step 8 — Own Thread Creation and Joining in `thread.c`
+
+`run_simulation()` should own the complete thread lifecycle. A recommended order
+is:
+
+```text
+create monitor thread
+mark monitor.thread_created = true
+
+for every coder:
+    create coder thread
+    if successful:
+        mark coder.thread_created = true
+    otherwise:
+        go to the startup-failure path
+
+release the start gate
+join every coder thread
+request monitor stop and broadcast
+join monitor thread
+return success
+```
+
+### Normal Stop for the Day 6 Placeholder
+
+After all coder threads finish their finite temporary loops:
+
+```text
+lock state_mutex
+should_stop = true
+broadcast wakeup_cond
+unlock state_mutex
+```
+
+Then join the monitor. Do not set `should_stop` before joining the coders on the
+normal Day 6 path, or they may exit before exercising their lifecycle.
+
+### Partial `pthread_create()` Failure
+
+If any creation fails:
+
+```text
+lock state_mutex
+should_stop = true
+broadcast wakeup_cond
+unlock state_mutex
+
+join only coder threads whose thread_created flag is true
+join the monitor only if monitor.thread_created is true
+return failure
+```
+
+The broadcast is essential: already-created threads may be asleep at the start
+gate and otherwise never reach a point where they can be joined.
+
+Try to join all successfully created threads even if one `pthread_join()` reports
+an error. Record that an error happened, continue joining the others, and return
+failure afterward.
+
+After a successful join, you may reset that thread's creation flag to `false`.
+
+## Step 9 — Connect the Lifecycle in `main.c`
+
+The high-level structure should become:
+
+```text
+zero-initialize data
+parse input
+initialize shared resources
+run simulation
+cleanup shared resources
+return the appropriate status
+```
+
+Conceptually:
+
+```c
+if (!init_data(&data))
+	return (1);
+if (!run_simulation(&data))
+{
+	cleanup_data(&data);
+	return (1);
+}
+cleanup_data(&data);
+```
+
+This contract assumes that `run_simulation()` joins every thread it successfully
+created, including on failure. `cleanup_data()` must never destroy a mutex or free
+coder data while a thread could still use it.
+
+## Step 10 — Implement in Small, Testable Passes
+
+Do not write all Day 6 code before compiling. Use these passes:
+
+### Pass A — One Thread
+
+- Add thread fields and prototypes.
+- Create one coder thread.
+- Pass `&data->coders[0]`.
+- Have it return immediately.
+- Join it successfully.
+
+### Pass B — N Threads
+
+- Create all coder threads in a loop.
+- Confirm each thread receives a distinct coder ID.
+- Add the creation flags and partial-failure cleanup path.
+
+### Pass C — Start Gate
+
+- Make every coder wait.
+- Create all coders and the monitor.
+- Set the common start time and broadcast.
+- Verify no thread remains stuck during normal or failed startup.
+
+### Pass D — Logging
+
+- Add elapsed timestamps.
+- Add the output mutex.
+- Log complete single lines.
+- Confirm that high thread counts do not produce mixed lines.
+
+### Pass E — Temporary Lifecycle
+
+- Add compile, debug, and refactor phases.
+- Use small timing arguments while testing.
+- Keep fake dongle messages visibly documented as temporary scaffolding.
+
+## Step 11 — Day 6 Test Matrix
+
+Use short durations so mistakes do not leave you waiting:
+
+```bash
+./codexion 1 1000 10 10 10 1 0 fifo
+./codexion 2 1000 10 15 20 2 0 fifo
+./codexion 5 1000 5 5 5 3 0 edf
+./codexion 20 1000 1 1 1 2 0 fifo
+```
+
+At this stage, test thread infrastructure rather than real scheduling semantics.
+
+Check each run:
+
+- The program exits rather than hanging.
+- Exactly `N` coder threads were created and joined.
+- The monitor thread was stopped and joined.
+- Each output line contains one timestamp, one valid coder ID, and one complete
+  permitted message.
+- Timestamps are relative to the common start time and are never negative.
+- No mutex or condition variable is destroyed before joins finish.
+- Running repeatedly does not intermittently hang.
+
+When available, use:
+
+```bash
+valgrind --leak-check=full ./codexion 5 1000 5 5 5 2 0 fifo
+valgrind --tool=helgrind ./codexion 5 1000 5 5 5 2 0 fifo
+```
+
+Treat Helgrind reports as leads to investigate, not as automatic proof of a bug.
+
+## Common Day 6 Mistakes
+
+| Mistake | Consequence |
+|---|---|
+| Passing `&i` from the creation loop | Threads observe the wrong or same ID |
+| Creating threads inside `init_data()` | Workers may access partially initialized state |
+| Setting `start_time` before creating all threads | Later threads lose part of their initial deadline |
+| Using `if` around `pthread_cond_wait()` | Spurious wakeups can pass the gate incorrectly |
+| Forgetting the startup-failure broadcast | Created threads wait forever and cannot be joined |
+| Joining a handle after failed creation | Undefined or invalid thread-handle use |
+| Detaching threads | Main cannot reliably wait before cleanup |
+| Freeing coder data before joins | Use-after-free by running threads |
+| Holding the log mutex during sleeps | Other threads cannot log for long periods |
+| Reading `should_stop` without its mutex | Data race |
+| Busy-waiting on shared state | Wasted CPU and still potentially racy |
+| Implementing real scheduling today | Too many new failure sources at once |
+
+## Suggested Work Session
+
+```text
+30 min   Draw thread ownership and shared-state protection
+45 min   Add thread fields, prototypes, and time helpers
+60 min   Create/join one thread, then N threads
+60 min   Implement and test the start gate
+45 min   Implement serialized logging
+60 min   Add the finite temporary coder lifecycle and monitor placeholder
+45 min   Test repeated runs, failure paths, leaks, and race warnings
+```
+
+## Day 6 Completion Checklist
+
+- [ ] All shared state is initialized before the first `pthread_create()`.
+- [ ] The program creates exactly `N` coder threads.
+- [ ] The program creates one monitor thread.
+- [ ] Every created thread waits behind a common start gate.
+- [ ] `start_time` and initial coder deadlines are set immediately before broadcast.
+- [ ] Every successful `pthread_create()` has a matching `pthread_join()`.
+- [ ] Partial thread-creation failure wakes and joins earlier threads.
+- [ ] Each coder receives its own stable `t_coder *` argument.
+- [ ] Logging uses one mutex around each complete output line.
+- [ ] Timestamps are elapsed milliseconds from the common start time.
+- [ ] Coder threads execute a finite compile/debug/refactor scaffold.
+- [ ] The placeholder monitor sleeps on a condition variable instead of polling.
+- [ ] No thread can access data after `cleanup_data()` begins.
+- [ ] Repeated short test runs exit without hangs or mixed log lines.
 
 ## End-of-Day Goal
 
-Multiple coder threads run concurrently and produce clean, non-interleaved logs.
+You can explain and demonstrate this statement:
+
+> Main initializes all shared state, creates `N` coder threads and one monitor,
+> releases them from a synchronized start gate, joins every successfully created
+> thread, and only then cleans the data. Coder logs remain complete and
+> non-interleaved even though the threads run concurrently.
 
 ---
 
