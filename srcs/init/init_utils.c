@@ -6,11 +6,11 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 17:52:37 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/04 16:43:42 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/05 20:26:14 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "include/codexion.h"
+#include "codexion.h"
 
 void	*ft_calloc(size_t nmemb, size_t size)
 {

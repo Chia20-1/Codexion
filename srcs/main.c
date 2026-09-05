@@ -6,11 +6,11 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 16:16:18 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/04 16:07:11 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/05 20:26:14 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "include/codexion.h"
+#include "codexion.h"
 #include <stdio.h>
 
 // static void	print_config(t_config config)

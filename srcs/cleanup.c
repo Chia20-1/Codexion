@@ -6,11 +6,11 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 20:35:22 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/04 15:50:00 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/05 20:26:14 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "include/codexion.h"
+#include "codexion.h"
 
 static void	cleanup_monitor(t_data *data)
 {

@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/04 16:46:44 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/05 19:41:21 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <stdlib.h>
 # include <stdint.h>
 # include <string.h>
+# include <sys/time.h>
 // # include <stddef.h>
 
 /* ******************************************************** */
@@ -51,7 +52,9 @@ struct s_coder
 	long long	last_compile_start;
 	t_dongle	*left;
 	t_dongle	*right;
-	t_data		*data;	
+	t_data		*data;
+	pthread_t	thread;
+	bool		thread_created;	
 };
 
 struct s_dongle
@@ -65,12 +68,15 @@ struct s_dongle
 struct s_monitor
 {
 	bool				should_stop;
+	pthread_t			thread;
 	pthread_mutex_t		state_mutex;
 	pthread_mutex_t		log_output_mutex;
 	pthread_cond_t		wakeup_cond;
 	bool				has_state_mutex;
 	bool				has_log_mutex;
 	bool				has_wakeup_cond;
+	bool				thread_created;
+	bool				simulation_started;
 };
 
 struct s_request
@@ -106,25 +112,36 @@ struct s_data
 /* ******************************************************** */
 /*                      PARSE INPUT                         */
 /* ******************************************************** */
-void	set_integer_config_value(int value, int index, t_config *config);
-void	set_llong_config_value(long long value, int index, t_config *config);
-bool	parse_input(int argc, char **argv, t_config *config);
+void		set_integer_config_value(int value, int index, t_config *config);
+void		set_llong_config_value(long long value, int index, t_config *config);
+bool		parse_input(int argc, char **argv, t_config *config);
 
 /* ******************************************************** */
 /*                      INITIALIZE                          */
 /* ******************************************************** */
-void	*ft_calloc(size_t nmemb, size_t size);
-bool	init_scheduler_mutex(t_data *data);
-bool	init_scheduler_cond(t_data *data);
-bool	init_data(t_data *data);
+void		*ft_calloc(size_t nmemb, size_t size);
+bool		init_scheduler_mutex(t_data *data);
+bool		init_scheduler_cond(t_data *data);
+bool		init_data(t_data *data);
+
+/* ******************************************************** */
+/*                        THREAD                            */
+/* ******************************************************** */
+void		*coder_routine(void *argument);
+void		*monitor_routine(void *argument);
+bool		run_simulation(t_data *data);
+
+
+/* ******************************************************** */
+/*                     TIME & LOG                           */
+/* ******************************************************** */
+long long	get_time_ms(void);
+long long	get_elapsed_ms(t_data *data);
+void		log_status(t_coder *coder, const char *status);
 
 /* ******************************************************** */
 /*                        CLEAN UP                          */
 /* ******************************************************** */
-void	cleanup_data(t_data *data);
-
-/* ******************************************************** */
-/*                         THREAD                           */
-/* ******************************************************** */
+void		cleanup_data(t_data *data);
 
 #endif
