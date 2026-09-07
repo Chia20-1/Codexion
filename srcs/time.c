@@ -6,24 +6,26 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/05 19:06:26 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/07 14:33:52 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/07 15:03:11 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
+#include <limits.h>
 #include <sys/time.h>
 #include <unistd.h>
 
 long long	get_time_ms(void)
 {
 	struct timeval	time;
-	long long		result;
+	long long		usec_part;
 
 	if (gettimeofday(&time, NULL) == -1)
 		return (-1);
-	result = time.tv_sec * 1000LL;
-	result = result + (time.tv_usec / 1000); 
-	return (result);
+	usec_part = time.tv_usec / 1000;
+	if (time.tv_sec > (LLONG_MAX - usec_part) / 1000)
+		return (-1);
+	return (time.tv_sec * 1000LL + usec_part);
 }
 
 long long	get_elapsed_ms(t_data *data)
