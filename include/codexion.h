@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/05 19:41:21 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/07 14:37:57 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,7 @@
 
 # include <pthread.h>
 # include <stdbool.h>
-# include <limits.h>
 # include <stdlib.h>
-# include <stdint.h>
-# include <string.h>
-# include <sys/time.h>
-// # include <stddef.h>
 
 /* ******************************************************** */
 /*                    STRUCT CONTAINERS                     */

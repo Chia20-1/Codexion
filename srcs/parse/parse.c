@@ -6,11 +6,15 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 19:27:51 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/05 20:26:14 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/07 14:35:58 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
+#include <limits.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 
 static bool	parse_scheduler(char *str, t_config *config)
 {

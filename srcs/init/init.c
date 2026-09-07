@@ -6,11 +6,14 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 20:31:55 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/05 20:26:14 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/07 14:29:28 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <pthread.h>
 
 static bool	init_coders(t_data *data)
 {

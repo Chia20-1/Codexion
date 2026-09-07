@@ -8,7 +8,7 @@ RFLAGS				= -rf
 # ====== Directories ======
 INC_DIR				= include/
 SRCS_DIR			= srcs/
-OBJS_DIR			= objs/
+BUILD_DIR			= build/
 PARSE_DIR			= ${SRCS_DIR}parse/
 INIT_DIR			= ${SRCS_DIR}init/
 
@@ -26,15 +26,15 @@ INIT				= 	${INIT_DIR}init.c \
 # ====== Rules ======
 all: ${NAME}
 
-$(NAME):			$(OBJS)
+$(NAME):			$(BUILD)
 						$(CC) $(CFLAGS) $(INC) -o $(NAME)
 
-$(OBJS_DIR)%.o:		$(SRCS_DIR)%.c
+$(BUILD_DIR)%.o:		$(SRCS_DIR)%.c
 					mkdir -p $(@D)
 					$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 clean:
-						$(RM) $(RFLAGS) $(OBJS_DIR)
+						$(RM) $(RFLAGS) $(BUILD_DIR)
 
 fclean: 			clean
 						${RM} $(RFLAGS) $(NAME)

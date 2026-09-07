@@ -6,11 +6,13 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/05 19:06:26 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/06 20:53:51 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/07 14:33:52 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
+#include <sys/time.h>
+#include <unistd.h>
 
 long long	get_time_ms(void)
 {
