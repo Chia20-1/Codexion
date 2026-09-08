@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/07 15:10:36 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/08 14:36:28 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,6 @@ bool		init_data(t_data *data);
 void		*coder_routine(void *argument);
 void		*monitor_routine(void *argument);
 bool		run_simulation(t_data *data);
-
 
 /* ******************************************************** */
 /*                     TIME & LOG                           */
