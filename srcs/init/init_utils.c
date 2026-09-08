@@ -6,21 +6,20 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 17:52:37 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/07 14:35:42 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/08 18:05:10 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 #include <pthread.h>
 #include <stdbool.h>
-#include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 void	*ft_calloc(size_t nmemb, size_t size)
 {
 	unsigned char	*ptr;
 	size_t			total;
-	size_t			i;
 
 	if (size != 0 && nmemb > SIZE_MAX / size)
 		return (NULL);

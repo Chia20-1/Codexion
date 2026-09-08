@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/08 14:36:28 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/08 18:11:32 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,8 @@ struct s_data
 /*                      PARSE INPUT                         */
 /* ******************************************************** */
 void		set_integer_config_value(int value, int index, t_config *config);
-void		set_llong_config_value(long long value, int index, t_config *config);
+void		set_llong_config_value(long long value, int index,
+				t_config *config);
 bool		parse_input(int argc, char **argv, t_config *config);
 
 /* ******************************************************** */
@@ -123,7 +124,7 @@ bool		init_data(t_data *data);
 /*                        THREAD                            */
 /* ******************************************************** */
 void		*coder_routine(void *argument);
-void		*monitor_routine(void *argument);
+// void		*monitor_routine(void *argument);
 bool		run_simulation(t_data *data);
 
 /* ******************************************************** */

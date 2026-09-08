@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 16:16:18 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/05 20:26:14 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/08 18:09:43 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,8 @@
 // 	printf("Time to compile: %lld\n", config.time_to_compile);
 // 	printf("Time to debug: %lld\n", config.time_to_debug);
 // 	printf("Time to refractor: %lld\n", config.time_to_refactor);
-// 	printf("Number of compiles required: %d\n", config.number_of_compiles_required);
+// 	printf("Number of compiles required: %d\n",
+//		config.number_of_compiles_required);
 // 	printf("Dongle cooldown: %lld\n", config.dongle_cooldown);
 // 	printf("Scheduler: %s\n", config.scheduler);
 // }
@@ -29,12 +30,24 @@
 int	main(int argc, char **argv)
 {
 	t_data		data;
+	int			i;
 
 	data = (t_data){0};
 	if (!parse_input(argc, argv, &data.config))
 		return (1);
 	if (!init_data(&data))
 		return (1);
+	if (!run_simulation(&data))
+	{
+		cleanup_data(&data);
+		return (1);
+	}
+	i = 0;
+	while (i < data.config.number_of_coders)
+	{
+		pthread_join(data.coders[i].thread, NULL);
+		i++;
+	}
 	cleanup_data(&data);
 	return (0);
 }

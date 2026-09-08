@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/05 19:06:26 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/07 15:03:11 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/08 18:09:10 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ long long	get_elapsed_ms(t_data *data)
 	current = get_time_ms();
 	if (current == -1)
 		return (-1);
-	return(current - data->start_time);
+	return (current - data->start_time);
 }
 
 bool	sleep_ms(long long duration_ms)
