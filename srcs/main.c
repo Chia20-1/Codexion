@@ -6,12 +6,13 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 16:16:18 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/08 18:09:43 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/09 14:36:53 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 #include <stdio.h>
+#include <unistd.h>
 
 // static void	print_config(t_config config)
 // {
@@ -42,6 +43,8 @@ int	main(int argc, char **argv)
 		cleanup_data(&data);
 		return (1);
 	}
+	usleep(1000);
+	request_stop(&data);
 	i = 0;
 	while (i < data.config.number_of_coders)
 	{

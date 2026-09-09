@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/08 18:11:32 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/09 14:29:06 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,6 +134,12 @@ long long	get_time_ms(void);
 long long	get_elapsed_ms(t_data *data);
 bool		sleep_ms(long long duration_ms);
 void		log_status(t_coder *coder, const char *status);
+
+/* ******************************************************** */
+/*                       MONITOR                            */
+/* ******************************************************** */
+bool		simulation_should_stop(t_data *data);
+void		request_stop(t_data *data);
 
 /* ******************************************************** */
 /*                        CLEAN UP                          */

@@ -22,14 +22,25 @@ PARSE				= 	${PARSE_DIR}parse.c \
 INIT				= 	${INIT_DIR}init.c \
 						${INIT_DIR}init_utils.c
 
+SRCS 				=	$(SRCS_DIR)main.c \
+     					$(SRCS_DIR)cleanup.c \
+     					$(SRCS_DIR)time.c \
+     					$(SRCS_DIR)thread.c \
+     					$(SRCS_DIR)coder.c \
+     					$(SRCS_DIR)log.c \
+     					$(SRCS_DIR)monitor.c \
+     					$(PARSE) \
+     					$(INIT)
+
+BUILD				=	$(SRCS:$(SRCS_DIR)%.c=$(BUILD_DIR)%.o)
 
 # ====== Rules ======
 all: ${NAME}
 
 $(NAME):			$(BUILD)
-						$(CC) $(CFLAGS) $(INC) -o $(NAME)
+						$(CC) $(CFLAGS) $(BUILD) -o $(NAME)
 
-$(BUILD_DIR)%.o:		$(SRCS_DIR)%.c
+$(BUILD_DIR)%.o:	$(SRCS_DIR)%.c
 					mkdir -p $(@D)
 					$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
