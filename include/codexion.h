@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/09 14:29:06 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/10 20:26:40 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ struct s_dongle
 struct s_monitor
 {
 	bool				should_stop;
+	int					wait_error;
 	pthread_t			thread;
 	pthread_mutex_t		state_mutex;
 	pthread_mutex_t		log_output_mutex;
@@ -123,9 +124,15 @@ bool		init_data(t_data *data);
 /* ******************************************************** */
 /*                        THREAD                            */
 /* ******************************************************** */
-void		*coder_routine(void *argument);
-// void		*monitor_routine(void *argument);
+int			join_coders(t_data *data);
+bool		create_monitor(t_data *data);
+int			join_monitor(t_data *data);
 bool		run_simulation(t_data *data);
+
+/* ******************************************************** */
+/*                        CODER                             */
+/* ******************************************************** */
+void		*coder_routine(void *argument);
 
 /* ******************************************************** */
 /*                     TIME & LOG                           */
@@ -140,6 +147,7 @@ void		log_status(t_coder *coder, const char *status);
 /* ******************************************************** */
 bool		simulation_should_stop(t_data *data);
 void		request_stop(t_data *data);
+void		*monitor_routine(void *argument);
 
 /* ******************************************************** */
 /*                        CLEAN UP                          */
