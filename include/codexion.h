@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/12 16:10:41 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/12 16:55:46 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,12 @@ typedef struct s_request	t_request;
 typedef struct s_scheduler	t_scheduler;
 typedef struct s_data		t_data;
 typedef struct s_config		t_config;
+
+typedef enum e_policy
+{
+	POLICY_FIFO,
+	POLICY_EDF
+}	t_policy;
 
 struct s_config
 {
@@ -86,6 +92,7 @@ struct s_request
 
 struct s_scheduler
 {
+	t_policy		policy;
 	t_request		**request_heap;
 	int				heap_size;
 	int				heap_capacity;
@@ -149,6 +156,15 @@ void		log_status(t_coder *coder, const char *status);
 bool		simulation_should_stop(t_data *data);
 void		request_stop(t_data *data);
 void		*monitor_routine(void *argument);
+
+/* ******************************************************** */
+/*                          HEAP                            */
+/* ******************************************************** */
+void		shift_up(t_request **heap, int index, t_policy policy);
+void		shift_down(t_request **heap, int index, int size, t_policy policy);
+t_request	*peek_heap(t_data *data);
+t_request	*pop_heap(t_data *data);
+void		push_heap(t_data *data);
 
 /* ******************************************************** */
 /*                        CLEAN UP                          */
