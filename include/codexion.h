@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/10 20:26:40 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/12 16:10:41 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ struct s_coder
 	t_dongle	*left;
 	t_dongle	*right;
 	t_data		*data;
+	t_request	*request;
 	pthread_t	thread;
 	bool		thread_created;	
 };
