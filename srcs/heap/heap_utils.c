@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/12 16:29:58 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/13 17:09:39 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/13 21:44:52 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ void	shift_down(t_request **heap, int index, int size, t_policy policy)
 {
 	int	left;
 	int	right;
-	int best;
+	int	best;
 
 	while (index < size / 2)
 	{

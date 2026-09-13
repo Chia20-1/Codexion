@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/12 16:55:46 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/13 21:43:40 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,7 +164,7 @@ void		shift_up(t_request **heap, int index, t_policy policy);
 void		shift_down(t_request **heap, int index, int size, t_policy policy);
 t_request	*peek_heap(t_data *data);
 t_request	*pop_heap(t_data *data);
-void		push_heap(t_data *data);
+bool		push_heap(t_data *data, t_request *request);
 
 /* ******************************************************** */
 /*                        CLEAN UP                          */
