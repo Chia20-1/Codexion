@@ -4,6 +4,31 @@
 
 # Instructions
 
+# Mutexes
+
+### Mutex Responsibilities
+
+| Mutex | Protects |
+|---|---|
+| `monitor.state_mutex` | Shared simulation/monitor state |
+| `dongle->mutex` | That dongle’s ownership and cooldown |
+| `scheduler.request_queue_mutex` | Scheduler queue and request coordination |
+| `monitor.log_output_mutex` | Log output, preventing overlapping messages |
+
+### Mutex Flow
+```
+ACQUIRE
+──────────────────────────────►
+
+request_queue → dongle[low] → dongle[high] → log → state
+
+
+RELEASE
+◄──────────────────────────────
+
+request_queue ← dongle[low] ← dongle[high] ← log ← state
+```
+
 # Resources
 
 1. [Build directory conventions](https://cmake.org/cmake/help/book/mastering-cmake/chapter/Getting%20Started.html)  

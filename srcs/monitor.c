@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 20:58:47 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/13 15:38:39 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/15 16:43:06 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ static bool	monitor_wait(t_data *data)
 	int	error;
 
 	error = pthread_cond_wait(&data->monitor.wakeup_cond,
-				&data->monitor.state_mutex);
+			&data->monitor.state_mutex);
 	if (error != 0)
 	{
 		data->monitor.wait_error = error;
@@ -62,12 +62,12 @@ void	*monitor_routine(void *argument)
 		&& !data->monitor.should_stop)
 	{
 		if (!monitor_wait(data))
-			break;
+			break ;
 	}
 	while (!data->monitor.should_stop)
 	{
 		if (!monitor_wait(data))
-			break;
+			break ;
 	}
 	pthread_mutex_unlock(&data->monitor.state_mutex);
 	return (NULL);

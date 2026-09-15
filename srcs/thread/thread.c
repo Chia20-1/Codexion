@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 15:28:06 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/10 20:20:15 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/15 16:43:32 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ bool	run_simulation(t_data *data)
 	coder_error = join_coders(data);
 	request_stop(data);
 	monitor_error = join_monitor(data);
-	if (coder_error != 0 || monitor_error !=0)
+	if (coder_error != 0 || monitor_error != 0)
 		printf("Join errors: coders=%d, monitor=%d\n",
 			coder_error, monitor_error);
 	return (startup_status && coder_error == 0 && monitor_error == 0
