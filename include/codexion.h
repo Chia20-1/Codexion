@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/15 18:19:19 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/15 20:21:45 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,14 @@ typedef enum e_policy
 	POLICY_FIFO,
 	POLICY_EDF
 }	t_policy;
+
+typedef enum e_request_result
+{
+	REQUEST_GRANTED,
+	REQUEST_WAITING,
+	REQUEST_STOPPED,
+	REQUEST_ERROR,
+}	t_request_result;
 
 struct s_config
 {
