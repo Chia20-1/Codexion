@@ -32,6 +32,7 @@ SRCS 				=	$(SRCS_DIR)main.c \
      					$(SRCS_DIR)coder.c \
      					$(SRCS_DIR)log.c \
      					$(SRCS_DIR)monitor.c \
+						$(SRCS_DIR)dongle.c \
      					$(PARSE) \
      					$(INIT) \
 						$(THREAD)

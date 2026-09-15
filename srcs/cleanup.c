@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 20:35:22 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/07 14:32:14 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/15 18:23:32 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ static void	cleanup_monitor(t_data *data)
 		pthread_mutex_destroy(&monitor->log_output_mutex);
 	monitor->has_log_mutex = false;
 	if (monitor->has_state_mutex)
-		pthread_mutex_destroy(&monitor->state_mutex);
+		pthread_mutex_destroy(&monitor->sim_state_mutex);
 	monitor->has_state_mutex = false;
 	return ;
 }

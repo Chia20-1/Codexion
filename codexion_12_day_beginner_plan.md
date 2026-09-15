@@ -516,11 +516,11 @@ Decide which mutex protects each value before writing thread code:
 
 | State | Protection on Day 6 |
 |---|---|
-| `monitor.should_stop` | `monitor.state_mutex` |
-| `monitor.simulation_started` | `monitor.state_mutex` |
-| `data.start_time` | Set under `state_mutex` before start broadcast; read afterward |
-| `coder.last_compile_start` | `monitor.state_mutex` |
-| `coder.compile_count` | `monitor.state_mutex` |
+| `monitor.should_stop` | `monitor.sim_state_mutex` |
+| `monitor.simulation_started` | `monitor.sim_state_mutex` |
+| `data.start_time` | Set under `sim_state_mutex` before start broadcast; read afterward |
+| `coder.last_compile_start` | `monitor.sim_state_mutex` |
+| `coder.compile_count` | `monitor.sim_state_mutex` |
 | Terminal output | `monitor.log_output_mutex` |
 | Thread-created flags | Main thread only, before workers are joined |
 
@@ -666,7 +666,7 @@ should hold it only long enough to print one line.
 
 The Day 10 monitor will add the stronger rule that no ordinary messages may print
 after burnout. For today, focus on non-interleaved lines and use one consistent
-locking order whenever a function needs both `state_mutex` and
+locking order whenever a function needs both `sim_state_mutex` and
 `log_output_mutex`.
 
 ## Step 5 — Build a Start Gate
@@ -685,11 +685,11 @@ should_stop = false
 At the beginning of every thread routine:
 
 ```text
-lock state_mutex
+lock sim_state_mutex
 while simulation has not started AND stop was not requested:
-    wait on wakeup_cond using state_mutex
+    wait on wakeup_cond using sim_state_mutex
 remember whether stop was requested
-unlock state_mutex
+unlock sim_state_mutex
 
 if stop was requested:
     return from the thread
@@ -702,13 +702,13 @@ changed.
 After all thread creations succeed, main releases the start gate:
 
 ```text
-lock state_mutex
+lock sim_state_mutex
 start_time = get_time_ms()
 for every coder:
     last_compile_start = start_time
 simulation_started = true
 broadcast wakeup_cond
-unlock state_mutex
+unlock sim_state_mutex
 ```
 
 The predicate and broadcast are performed while holding the same mutex. This
@@ -746,12 +746,12 @@ while this coder has not completed the requested count:
     log "has taken a dongle"          ← fake for now
     log "has taken a dongle"          ← fake for now
 
-    under state_mutex:
+    under sim_state_mutex:
         last_compile_start = current absolute time
     log "is compiling"
     sleep time_to_compile
 
-    under state_mutex:
+    under sim_state_mutex:
         increment compile_count
         broadcast wakeup_cond
 
@@ -774,7 +774,7 @@ Protect `compile_count` and `last_compile_start` now because the real monitor wi
 read them concurrently later. After changing data relevant to the monitor,
 broadcast `wakeup_cond` so this communication pattern is already in place.
 
-Do not hold `state_mutex` during compile, debug, or refactor sleeps.
+Do not hold `sim_state_mutex` during compile, debug, or refactor sleeps.
 
 ## Step 7 — Create a Placeholder Monitor Routine in `monitor.c`
 
@@ -782,12 +782,12 @@ Day 10 implements deadline selection and burnout. Today, the monitor thread only
 needs a safe lifecycle without busy waiting:
 
 ```text
-lock state_mutex
+lock sim_state_mutex
 while simulation has not started AND stop was not requested:
     wait on wakeup_cond
 while stop was not requested:
     wait on wakeup_cond
-unlock state_mutex
+unlock sim_state_mutex
 return NULL
 ```
 
@@ -830,10 +830,10 @@ return success
 After all coder threads finish their finite temporary loops:
 
 ```text
-lock state_mutex
+lock sim_state_mutex
 should_stop = true
 broadcast wakeup_cond
-unlock state_mutex
+unlock sim_state_mutex
 ```
 
 Then join the monitor. Do not set `should_stop` before joining the coders on the
@@ -844,10 +844,10 @@ normal Day 6 path, or they may exit before exercising their lifecycle.
 If any creation fails:
 
 ```text
-lock state_mutex
+lock sim_state_mutex
 should_stop = true
 broadcast wakeup_cond
-unlock state_mutex
+unlock sim_state_mutex
 
 join only coder threads whose thread_created flag is true
 join the monitor only if monitor.thread_created is true

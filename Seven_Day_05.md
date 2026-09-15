@@ -15,7 +15,7 @@ Keep the Day 3 lock order visible while reviewing every cross-module call.
 
 The existing `should_stop` says whether execution should end. Also retain enough
 state to distinguish normal completion, burnout, and internal failure. A small
-enum or explicit fields under `state_mutex` can provide this; choose one clear
+enum or explicit fields under `sim_state_mutex` can provide this; choose one clear
 representation rather than unrelated flags that can contradict one another.
 
 Only the first terminal transition wins. Runtime errors must not masquerade as
@@ -35,7 +35,7 @@ Remove Day 2's temporary finite-loop exit. A coder keeps following its lifecycle
 until global stop; its count may exceed the minimum while others catch up.
 
 Increment a count only after a full compile finishes. Protect counts and
-`last_compile_start` with `state_mutex` and notify the monitor when they change.
+`last_compile_start` with `sim_state_mutex` and notify the monitor when they change.
 If your accepted input domain includes zero required compiles, complete immediately
 without starting unnecessary activity. Verify zero-value rules against the subject
 and parser rather than inventing undocumented input restrictions.
@@ -63,18 +63,18 @@ silently exclude a coder from monitoring because it reached its individual quota
 After the common start gate:
 
 ```text
-lock state_mutex
+lock sim_state_mutex
 while not stopped:
     inspect current state and clock
     if a terminal condition is found:
         leave the wait loop to perform the terminal transition
     otherwise:
         timed-wait on wakeup_cond until nearest burnout deadline
-unlock state_mutex
+unlock sim_state_mutex
 ```
 
 Use the absolute real-time millisecond-to-timespec conversion from Day 4. The
-monitor's condition uses `state_mutex`; the scheduler's condition uses its queue
+monitor's condition uses `sim_state_mutex`; the scheduler's condition uses its queue
 mutex. Keep these pairings consistent. Re-evaluate after notification or timeout.
 Unexpected wait/time errors request failure shutdown.
 
@@ -89,10 +89,10 @@ Use one ordering for ordinary logging and terminal logging:
 
 ```text
 lock log_output_mutex
-lock state_mutex
+lock sim_state_mutex
 check terminal state
 print an ordinary line only if still running
-unlock state_mutex
+unlock sim_state_mutex
 unlock log_output_mutex
 ```
 
@@ -124,7 +124,7 @@ the actual activity wait.
 ## Step 7 — Make sleeps and queues respond to stop
 
 Extend the sleep interface to receive `t_data *` or add a stop-aware activity
-helper. Between small sleeps, read stop under `state_mutex`. Preserve the
+helper. Between small sleeps, read stop under `sim_state_mutex`. Preserve the
 difference between “duration finished”, “stopped”, and “clock/sleep error”.
 An enum result is clearer than treating every early return as success.
 

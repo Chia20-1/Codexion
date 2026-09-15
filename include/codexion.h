@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/15 16:25:05 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/15 18:19:19 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ struct s_coder
 	t_data		*data;
 	t_request	*request;
 	pthread_t	thread;
-	bool		thread_created;	
+	bool		thread_created;
 };
 
 struct s_dongle
@@ -72,7 +72,7 @@ struct s_monitor
 	bool				should_stop;
 	int					wait_error;
 	pthread_t			thread;
-	pthread_mutex_t		state_mutex;
+	pthread_mutex_t		sim_state_mutex;
 	pthread_mutex_t		log_output_mutex;
 	pthread_cond_t		wakeup_cond;
 	bool				has_state_mutex;
@@ -142,10 +142,12 @@ bool		run_simulation(t_data *data);
 /* ******************************************************** */
 void		*coder_routine(void *argument);
 
+// Caller holds scheduler.request_queue_mutex
 /* ******************************************************** */
 /*                        DONGLE                            */
 /* ******************************************************** */
 bool		dongle_pair_try_acquire(t_coder *coder, long long now);
+bool		dongle_pair_release(t_coder *coder, long long release_time);
 
 /* ******************************************************** */
 /*                     TIME & LOG                           */

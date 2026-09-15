@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 15:28:06 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/15 16:43:32 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/15 18:21:16 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,10 @@ static bool	create_coders(t_data *data)
 				NULL, coder_routine,
 				&data->coders[i]) != 0)
 		{
-			pthread_mutex_lock(&data->monitor.state_mutex);
+			pthread_mutex_lock(&data->monitor.sim_state_mutex);
 			data->monitor.should_stop = true;
 			pthread_cond_broadcast(&data->monitor.wakeup_cond);
-			pthread_mutex_unlock(&data->monitor.state_mutex);
+			pthread_mutex_unlock(&data->monitor.sim_state_mutex);
 			return (false);
 		}
 		data->coders[i].thread_created = true;
@@ -43,13 +43,13 @@ static bool	start_simulation(t_data *data)
 {
 	int	i;
 
-	pthread_mutex_lock(&data->monitor.state_mutex);
+	pthread_mutex_lock(&data->monitor.sim_state_mutex);
 	data->start_time = get_time_ms();
 	if (data->start_time == -1)
 	{
 		data->monitor.should_stop = true;
 		pthread_cond_broadcast(&data->monitor.wakeup_cond);
-		pthread_mutex_unlock(&data->monitor.state_mutex);
+		pthread_mutex_unlock(&data->monitor.sim_state_mutex);
 		return (false);
 	}
 	i = 0;
@@ -60,7 +60,7 @@ static bool	start_simulation(t_data *data)
 	}
 	data->monitor.simulation_started = true;
 	pthread_cond_broadcast(&data->monitor.wakeup_cond);
-	pthread_mutex_unlock(&data->monitor.state_mutex);
+	pthread_mutex_unlock(&data->monitor.sim_state_mutex);
 	return (true);
 }
 

@@ -111,23 +111,21 @@ Only its current owner may release it. Never grant the same dongle twice.
 
 ## Step 6 — Establish a lock order for integration
 
-One consistent order for these guides is:
+**Objective: prevent deadlocks when threads need multiple mutexes.**
+
+**Mutex flow**
 
 ```text
 scheduler.request_queue_mutex
     → dongle mutexes by increasing array index
         → monitor.log_output_mutex
-            → monitor.state_mutex
+            → monitor.sim_state_mutex
 ```
 
-Acquire only the locks the operation needs; this is an ordering rule, not a demand
-that every operation take all of them. Release in reverse order. Code holding
-state or log must release it before trying to acquire the scheduler mutex.
-
-Use dongle array positions for ordering, not coder-relative left/right order.
-With two coders, both need the same two dongles in opposite left/right positions.
-With one coder, the two pointers are equal: do not lock the same mutex twice or
-consider the pair valid. Final one-coder stopping is implemented on Day 5.
+- Acquire only the mutexes needed, following this order; unlock in reverse.
+- Order dongles by array index, regardless of their left/right position.
+- If left and right point to the same dongle, reject the pair before locking.
+- Release state/log mutexes before acquiring the scheduler mutex.
 
 ## Step 7 — Implement pair checking and release helpers
 

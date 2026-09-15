@@ -26,7 +26,7 @@ is not an error and should normally lead to waiting.
 
 On enqueue, while holding `request_queue_mutex`:
 
-1. Check stop with `state_mutex`, then release state while retaining queue lock.
+1. Check stop with `sim_state_mutex`, then release state while retaining queue lock.
 2. Read this coder's last compile start under state protection.
 3. Set the request's deadline and fresh arrival number.
 4. Reset its grant flag and insert exactly once into the heap.
@@ -123,7 +123,7 @@ In `coder_routine()`, replace the fake acquisition section:
 ```text
 request pair; wait for grant or stop
 if granted and still running:
-    record actual compile start under state_mutex
+    record actual compile start under sim_state_mutex
     notify monitor
     log two dongle acquisitions and compiling in the required order
     sleep for compile duration

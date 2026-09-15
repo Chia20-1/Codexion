@@ -15,8 +15,8 @@ Use your existing struct fields:
 
 | State | Protection |
 |---|---|
-| `should_stop`, `simulation_started` | `monitor.state_mutex` |
-| `last_compile_start`, `compile_count` | `monitor.state_mutex` |
+| `should_stop`, `simulation_started` | `monitor.sim_state_mutex` |
+| `last_compile_start`, `compile_count` | `monitor.sim_state_mutex` |
 | `start_time` | Written under state mutex before gate release; immutable afterward |
 | Output | `monitor.log_output_mutex` |
 | Creation flags | Main thread manages them |
@@ -43,11 +43,11 @@ IDs in a temporary diagnostic; do not require execution in ascending ID order.
 Both routines begin with this predicate loop:
 
 ```text
-lock state_mutex
+lock sim_state_mutex
 while simulation_started is false AND should_stop is false:
-    wait on wakeup_cond using state_mutex
+    wait on wakeup_cond using sim_state_mutex
 remember should_stop
-unlock state_mutex
+unlock sim_state_mutex
 if stopping: return
 ```
 
@@ -55,7 +55,7 @@ Waiting releases the mutex and reacquires it before returning. Wakeups require
 rechecking the predicate, hence `while`. A broadcast is a notification, not stored
 permission to proceed. [Condition-wait semantics](https://man7.org/linux/man-pages/man3/pthread_cond_wait.3p.html)
 
-After all creations succeed, main does this under `state_mutex`:
+After all creations succeed, main does this under `sim_state_mutex`:
 
 ```text
 obtain start_time; on failure use the startup-cancellation path
@@ -82,9 +82,9 @@ In `coder.c`, use this temporary sequence:
 wait at start gate
 repeat until this coder has completed the temporary target or stop is requested:
     log two fake dongle-acquisition messages
-    update last_compile_start under state_mutex; notify monitor
+    update last_compile_start under sim_state_mutex; notify monitor
     log compiling; wait time_to_compile
-    if full compile completed: increment compile_count under state_mutex; notify
+    if full compile completed: increment compile_count under sim_state_mutex; notify
     log debugging; wait time_to_debug
     log refactoring; wait time_to_refactor
 return
@@ -122,7 +122,7 @@ monitor would otherwise exit without exercising the planned lifecycle.
 
 Draw the case where monitor and coders 1–2 exist but creating coder 3 fails:
 
-1. Set `should_stop` under `state_mutex`.
+1. Set `should_stop` under `sim_state_mutex`.
 2. Broadcast `wakeup_cond` so threads waiting at the unopened gate can exit.
 3. Join only workers marked as created, then the created monitor.
 4. Report failure; clean shared data once no thread can access it.
