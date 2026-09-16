@@ -6,13 +6,14 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 20:31:55 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/15 18:21:03 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/16 21:51:34 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <pthread.h>
 
 static bool	init_coders(t_data *data)
@@ -72,7 +73,11 @@ static bool	init_scheduler(t_data *data)
 	scheduler->arrival_counter = 0;
 	scheduler->request_heap = ft_calloc((size_t)scheduler->heap_capacity,
 			sizeof(*scheduler->request_heap));
+	scheduler->waiting_requests= ft_calloc((size_t)scheduler->heap_capacity,
+			sizeof(*scheduler->waiting_requests));
 	if (!scheduler->request_heap)
+		return (false);
+	if (!scheduler->waiting_requests)
 		return (false);
 	if (!init_scheduler_mutex(data))
 		return (false);

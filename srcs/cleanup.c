@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 20:35:22 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/15 18:23:32 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/16 21:43:25 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,8 @@ static void	cleanup_scheduler(t_data *data)
 	scheduler->has_mutex = false;
 	free(scheduler->request_heap);
 	scheduler->request_heap = NULL;
+	free(scheduler->waiting_requests);
+	scheduler->waiting_requests = NULL;
 }
 
 static void	cleanup_dongles(t_data *data)

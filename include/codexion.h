@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/15 20:21:45 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/16 21:40:23 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,7 @@ struct s_scheduler
 {
 	t_policy		policy;
 	t_request		**request_heap;
+	t_request		**waiting_requests;
 	int				heap_size;
 	int				heap_capacity;
 	unsigned long	arrival_counter;
