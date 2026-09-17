@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/17 16:50:39 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/17 20:03:35 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,6 +169,7 @@ void		log_status(t_coder *coder, const char *status);
 /* ******************************************************** */
 /*                      SCHEDULER                           */
 /* ******************************************************** */
+int			build_waiting_list(t_data *data, long long now);
 bool		requests_share_dongle(t_request *a, t_request *b);
 bool		has_earlier_conflict(t_scheduler *queue, t_request *request,
 				int waiting_count);
