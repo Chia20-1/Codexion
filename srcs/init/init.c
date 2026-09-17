@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 20:31:55 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/16 21:51:34 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/17 16:55:02 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,10 @@ static bool	init_coders(t_data *data)
 		coder = &data->coders[i];
 		coder->id = i + 1;
 		coder->data = data;
+		coder->request = ft_calloc(1, sizeof(*coder->request));
+		if (!coder->request)
+			return (false);
+		coder->request->coder = coder;
 		i++;
 	}
 	return (true);
@@ -73,7 +77,7 @@ static bool	init_scheduler(t_data *data)
 	scheduler->arrival_counter = 0;
 	scheduler->request_heap = ft_calloc((size_t)scheduler->heap_capacity,
 			sizeof(*scheduler->request_heap));
-	scheduler->waiting_requests= ft_calloc((size_t)scheduler->heap_capacity,
+	scheduler->waiting_requests = ft_calloc((size_t)scheduler->heap_capacity,
 			sizeof(*scheduler->waiting_requests));
 	if (!scheduler->request_heap)
 		return (false);

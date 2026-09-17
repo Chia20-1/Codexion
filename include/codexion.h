@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/16 21:40:23 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/17 16:50:39 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,6 +165,13 @@ long long	get_time_ms(void);
 long long	get_elapsed_ms(t_data *data);
 bool		sleep_ms(long long duration_ms);
 void		log_status(t_coder *coder, const char *status);
+
+/* ******************************************************** */
+/*                      SCHEDULER                           */
+/* ******************************************************** */
+bool		requests_share_dongle(t_request *a, t_request *b);
+bool		has_earlier_conflict(t_scheduler *queue, t_request *request,
+				int waiting_count);
 
 /* ******************************************************** */
 /*                       MONITOR                            */

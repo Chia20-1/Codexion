@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 20:35:22 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/16 21:43:25 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/17 16:54:24 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,17 @@ static void	cleanup_dongles(t_data *data)
 
 static void	cleanup_coders(t_data *data)
 {
+	int	i;
+
+	if (!data->coders)
+		return ;
+	i = 0;
+	while (i < data->config.number_of_coders)
+	{
+		free(data->coders[i].request);
+		data->coders[i].request = NULL;
+		i++;
+	}
 	free(data->coders);
 	data->coders = NULL;
 }
