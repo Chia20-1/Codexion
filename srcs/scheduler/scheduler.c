@@ -6,11 +6,12 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/15 20:30:52 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/17 16:55:50 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/17 17:02:06 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
+#include <limits.h>
 
 static int	build_waiting_list(t_data *data, long long now)
 {
@@ -56,6 +57,12 @@ static bool	scheduler_grants_request(t_data *data)
 		i++;
 	}
 	return (pthread_cond_broadcast(&queue->request_queue_cond) == 0);
+}
+
+static bool	queue_request(t_coder *coder, long long last_start)
+{
+	t_scheduler *queue;
+	t_request	*request;
 }
 
 t_request_result	scheduler_process_request(t_coder *coder)
