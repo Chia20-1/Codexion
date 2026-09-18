@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/17 20:03:35 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/18 19:10:39 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,74 +125,76 @@ struct s_data
 /* ******************************************************** */
 /*                      PARSE INPUT                         */
 /* ******************************************************** */
-void		set_integer_config_value(int value, int index, t_config *config);
-void		set_llong_config_value(long long value, int index,
-				t_config *config);
-bool		parse_input(int argc, char **argv, t_config *config);
+void				set_integer_config_value(int value, int index, t_config *config);
+void				set_llong_config_value(long long value, int index,
+						t_config *config);
+bool				parse_input(int argc, char **argv, t_config *config);
 
 /* ******************************************************** */
 /*                      INITIALIZE                          */
 /* ******************************************************** */
-void		*ft_calloc(size_t nmemb, size_t size);
-bool		init_scheduler_mutex(t_data *data);
-bool		init_scheduler_cond(t_data *data);
-bool		init_data(t_data *data);
+void				*ft_calloc(size_t nmemb, size_t size);
+bool				init_scheduler_mutex(t_data *data);
+bool				init_scheduler_cond(t_data *data);
+bool				init_data(t_data *data);
 
 /* ******************************************************** */
 /*                        THREAD                            */
 /* ******************************************************** */
-int			join_coders(t_data *data);
-bool		create_monitor(t_data *data);
-int			join_monitor(t_data *data);
-bool		run_simulation(t_data *data);
+int					join_coders(t_data *data);
+bool				create_monitor(t_data *data);
+int					join_monitor(t_data *data);
+bool				run_simulation(t_data *data);
 
 /* ******************************************************** */
 /*                        CODER                             */
 /* ******************************************************** */
-void		*coder_routine(void *argument);
+void				*coder_routine(void *argument);
 
 // Caller holds scheduler.request_queue_mutex
 /* ******************************************************** */
 /*                        DONGLE                            */
 /* ******************************************************** */
-bool		dongle_pair_try_acquire(t_coder *coder, long long now);
-bool		dongle_pair_release(t_coder *coder, long long release_time);
+bool				dongle_pair_try_acquire(t_coder *coder, long long now);
+bool				dongle_pair_release(t_coder *coder, long long release_time);
 
 /* ******************************************************** */
 /*                     TIME & LOG                           */
 /* ******************************************************** */
-long long	get_time_ms(void);
-long long	get_elapsed_ms(t_data *data);
-bool		sleep_ms(long long duration_ms);
-void		log_status(t_coder *coder, const char *status);
+long long			get_time_ms(void);
+long long			get_elapsed_ms(t_data *data);
+bool				sleep_ms(long long duration_ms);
+void				log_status(t_coder *coder, const char *status);
 
 /* ******************************************************** */
 /*                      SCHEDULER                           */
 /* ******************************************************** */
-int			build_waiting_list(t_data *data, long long now);
-bool		requests_share_dongle(t_request *a, t_request *b);
-bool		has_earlier_conflict(t_scheduler *queue, t_request *request,
-				int waiting_count);
+bool				requests_share_dongle(t_request *a, t_request *b);
+bool				has_earlier_conflict(t_scheduler *queue, t_request *request,
+						int waiting_count);
+int					build_waiting_list(t_data *data, long long now);
+int					scheduler_wait(t_data *data);
+t_request_result	scheduler_process_request(t_coder *coder);
 
 /* ******************************************************** */
 /*                       MONITOR                            */
 /* ******************************************************** */
-bool		simulation_should_stop(t_data *data);
-void		request_stop(t_data *data);
-void		*monitor_routine(void *argument);
+bool				simulation_should_stop(t_data *data);
+void				request_stop(t_data *data);
+void				*monitor_routine(void *argument);
 
 /* ******************************************************** */
 /*                          HEAP                            */
 /* ******************************************************** */
-void		shift_up(t_request **heap, int index, t_policy policy);
-void		shift_down(t_request **heap, int index, int size, t_policy policy);
-t_request	*peek_heap(t_data *data);
-t_request	*pop_heap(t_data *data);
-bool		push_heap(t_data *data, t_request *request);
+void				shift_up(t_request **heap, int index, t_policy policy);
+void				shift_down(t_request **heap, int index, int size, t_policy policy);
+t_request			*peek_heap(t_data *data);
+t_request			*pop_heap(t_data *data);
+bool				push_heap(t_data *data, t_request *request);
 
 /* ******************************************************** */
 /*                        CLEAN UP                          */
 /* ******************************************************** */
-void		cleanup_data(t_data *data);
+void				cleanup_data(t_data *data);
 
 #endif

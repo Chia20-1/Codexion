@@ -6,12 +6,13 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/15 20:30:52 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/17 20:20:33 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/18 17:26:21 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 #include <limits.h>
+#include <errno.h>
 
 static bool	scheduler_grants_request(t_data *data)
 {
@@ -75,18 +76,18 @@ static t_request_result	wait_for_grant(t_coder *coder)
 			return (REQUEST_STOPPED);
 		if (coder->request->dongles_granted)
 			return (REQUEST_GRANTED);
-		error = pthread_cond_wait(&queue->request_queue_cond,
-			&queue->request_queue_mutex);
-		if (error != 0)
+		error = scheduler_wait(data);
+		if (error != 0 && error != ETIMEDOUT)
 			return (REQUEST_ERROR);
 	}
 }
 
 t_request_result	scheduler_process_request(t_coder *coder)
 {
-	t_data		*data;
-	t_scheduler	*queue;
-	long long	last_compile_start;
+	t_data				*data;
+	t_scheduler			*queue;
+	t_request_result	result;
+	long long			last_compile_start;
 
 	data = coder->data;
 	queue = &data->scheduler;
@@ -105,4 +106,7 @@ t_request_result	scheduler_process_request(t_coder *coder)
 		pthread_mutex_unlock(&queue->request_queue_mutex);
 		return (REQUEST_ERROR);
 	}
+	result = wait_for_grant(coder);
+	pthread_mutex_unlock(&queue->request_queue_mutex);
+	return (result);
 }

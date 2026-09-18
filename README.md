@@ -59,6 +59,21 @@ RELEASE
 request_queue ← dongle[low] ← dongle[high] ← log ← state
 ```
 
+# Scheduler Flow
+
+```text
+Lock queue → enqueue once → arbitrate → granted?
+                              ↑           │
+                              │           ├─ yes → unlock queue → return
+                              │           │
+                              └── wake ── wait
+                                         releases queue while sleeping
+```
+
+The wait reacquires `request_queue_mutex` before returning. After waking, the
+coder checks stop and runs arbitration again; it does not enqueue its request
+again. A wakeup or timeout does not guarantee a grant.
+
 # Resources
 
 1. [Build directory conventions](https://cmake.org/cmake/help/book/mastering-cmake/chapter/Getting%20Started.html)  
