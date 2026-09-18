@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 16:46:22 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/18 18:50:27 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/18 20:29:47 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,9 +106,9 @@ int	scheduler_wait(t_data *data)
 	deadline = next_cooldown_deadline(data, now);
 	if (deadline == -1)
 		return (pthread_cond_wait(&queue->request_queue_cond,
-			&queue->request_queue_mutex));
+				&queue->request_queue_mutex));
 	timeout.tv_sec = deadline / 1000;
 	timeout.tv_nsec = (deadline % 1000) * 1000000;
 	return (pthread_cond_timedwait(&queue->request_queue_cond,
-		&queue->request_queue_mutex, &timeout));
+			&queue->request_queue_mutex, &timeout));
 }

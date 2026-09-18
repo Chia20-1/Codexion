@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/15 20:30:52 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/18 17:26:21 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/18 20:29:11 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ static bool	scheduler_grants_request(t_data *data)
 
 static bool	queue_request(t_coder *coder, long long last_start)
 {
-	t_scheduler *queue;
+	t_scheduler	*queue;
 	t_request	*request;
 
 	queue = &coder->data->scheduler;
@@ -52,7 +52,8 @@ static bool	queue_request(t_coder *coder, long long last_start)
 		|| last_start > LLONG_MAX - coder->data->config.time_to_burnout
 		|| queue->arrival_counter == ULONG_MAX)
 		return (false);
-	request->burnout_deadline = last_start + coder->data->config.time_to_burnout;
+	request->burnout_deadline = last_start
+		+ coder->data->config.time_to_burnout;
 	request->arrival_order = queue->arrival_counter++;
 	request->dongles_granted = false;
 	return (push_heap(coder->data, request));
