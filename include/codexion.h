@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/18 19:10:39 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/18 20:38:08 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,7 @@ bool				run_simulation(t_data *data);
 /* ******************************************************** */
 void				*coder_routine(void *argument);
 
-// Caller holds scheduler.request_queue_mutex
+
 /* ******************************************************** */
 /*                        DONGLE                            */
 /* ******************************************************** */
@@ -175,6 +175,7 @@ bool				has_earlier_conflict(t_scheduler *queue, t_request *request,
 int					build_waiting_list(t_data *data, long long now);
 int					scheduler_wait(t_data *data);
 t_request_result	scheduler_process_request(t_coder *coder);
+bool				scheduler_release_pair(t_coder *coder);
 
 /* ******************************************************** */
 /*                       MONITOR                            */

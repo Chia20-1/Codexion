@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/15 20:30:52 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/18 20:29:11 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/18 20:44:14 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,25 @@ static t_request_result	wait_for_grant(t_coder *coder)
 		if (error != 0 && error != ETIMEDOUT)
 			return (REQUEST_ERROR);
 	}
+}
+
+bool	scheduler_release_pair(t_coder *coder)
+{
+	t_data		*data;
+	long long	now;
+	bool		success;
+
+	data = coder->data;
+	pthread_mutex_lock(&data->scheduler.request_queue_mutex);
+	now = get_time_ms();
+	success = dongle_pair_release(coder, now);
+	if (success)
+		success = scheduler_grants_request(data);
+	if (success)
+		success = (pthread_cond_broadcast(
+					&data->scheduler.request_queue_cond) == 0);
+	pthread_mutex_unlock(&data->scheduler.request_queue_mutex);
+	return (success);
 }
 
 t_request_result	scheduler_process_request(t_coder *coder)

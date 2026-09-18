@@ -74,6 +74,34 @@ The wait reacquires `request_queue_mutex` before returning. After waking, the
 coder checks stop and runs arbitration again; it does not enqueue its request
 again. A wakeup or timeout does not guarantee a grant.
 
+# Coder Compile Cycle
+
+After the start gate:
+
+```text
+coder_routine()
+    │
+    ├─ scheduler_process_request(coder)
+    │      Wait until granted or stopped/error
+    │
+    ├─ Record compile start and log actions
+    │
+    ├─ Wait for compile duration
+    │
+    ├─ Count the compile if fully completed
+    │
+    ├─ scheduler_release_pair(coder)
+    │
+    ├─ Debug
+    │
+    └─ Refactor
+```
+
+Repeat the cycle while running. The coder thread calls the scheduler functions;
+they do not run in a separate scheduler thread. If stop or an error interrupts
+the cycle, release any owned pair before exiting, even if compilation did not
+finish. Only fully completed compiles increase `compile_count`.
+
 # Resources
 
 1. [Build directory conventions](https://cmake.org/cmake/help/book/mastering-cmake/chapter/Getting%20Started.html)  
@@ -83,4 +111,5 @@ again. A wakeup or timeout does not guarantee a grant.
    Covers thread creation, joining threads, passing arguments to thread routines, concurrency versus parallelism, debugging, and checking for memory leaks in multithreaded programs.
 
 ### AI Usage
-1. Used AI to generate learning modules and self-practice exercises to help me master each external function listed in the subject before starting the project.
+1. Generate learning modules and self-practice exercises to help me master each external function listed in the subject before starting the project.
+2. Create a table summarizing each mutex’s purpose and the shared data it protects.
