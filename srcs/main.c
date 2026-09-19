@@ -21,7 +21,7 @@
 // 	printf("Time to burnout: %lld\n", config.time_to_burnout);
 // 	printf("Time to compile: %lld\n", config.time_to_compile);
 // 	printf("Time to debug: %lld\n", config.time_to_debug);
-// 	printf("Time to refractor: %lld\n", config.time_to_refactor);
+// 	printf("Time to refactor: %lld\n", config.time_to_refactor);
 // 	printf("Number of compiles required: %d\n",
 //		config.number_of_compiles_required);
 // 	printf("Dongle cooldown: %lld\n", config.dongle_cooldown);

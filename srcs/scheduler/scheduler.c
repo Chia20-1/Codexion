@@ -83,7 +83,7 @@ static t_request_result	wait_for_grant(t_coder *coder)
 	}
 }
 
-bool	scheduler_release_pair(t_coder *coder)
+bool	scheduler_release_dongles(t_coder *coder)
 {
 	t_data		*data;
 	long long	now;
@@ -94,7 +94,10 @@ bool	scheduler_release_pair(t_coder *coder)
 	now = get_time_ms();
 	success = dongle_pair_release(coder, now);
 	if (success)
+	{
+		coder->request->dongles_granted = false;
 		success = scheduler_grants_request(data);
+	}
 	if (success)
 		success = (pthread_cond_broadcast(
 					&data->scheduler.request_queue_cond) == 0);

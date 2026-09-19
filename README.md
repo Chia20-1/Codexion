@@ -90,7 +90,7 @@ coder_routine()
     │
     ├─ Count the compile if fully completed
     │
-    ├─ scheduler_release_pair(coder)
+    ├─ scheduler_release_dongles(coder)
     │
     ├─ Debug
     │
