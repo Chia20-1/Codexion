@@ -36,7 +36,8 @@ HEAP				=	${HEAP_DIR}heap.c\
 						${HEAP_DIR}heap_utils.c
 
 SCHEDULER			=	${SCHEDULER_DIR}scheduler.c\
-						${SCHEDULER_DIR}scheduler_utils.c
+						${SCHEDULER_DIR}scheduler_utils.c \
+						${SCHEDULER_DIR}scheduler_stop.c
 
 SRCS 				=	$(SRCS_DIR)main.c \
      					$(SRCS_DIR)cleanup.c \

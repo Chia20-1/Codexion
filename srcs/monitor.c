@@ -32,6 +32,7 @@ void	request_stop(t_data *data)
 	data->monitor.should_stop = true;
 	pthread_cond_broadcast(&data->monitor.wakeup_cond);
 	pthread_mutex_unlock(&data->monitor.sim_state_mutex);
+	scheduler_clear_queue(data);
 }
 
 static bool	monitor_wait(t_data *data)
@@ -70,5 +71,6 @@ void	*monitor_routine(void *argument)
 			break ;
 	}
 	pthread_mutex_unlock(&data->monitor.sim_state_mutex);
+	scheduler_clear_queue(data);
 	return (NULL);
 }

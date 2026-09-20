@@ -102,6 +102,16 @@ they do not run in a separate scheduler thread. If stop or an error interrupts
 the cycle, release any owned pair before exiting, even if compilation did not
 finish. Only fully completed compiles increase `compile_count`.
 
+# Simulation State
+
+- `RUNNING`: Simulation is active.
+- `COMPLETED`: All coders reached the required compile count.
+- `BURNOUT`: A coder reached its burnout deadline.
+- `ERROR`: An internal operation failed.
+
+Only the first transition from `RUNNING` to a terminal state takes effect.
+Protect the state check and update with `monitor.sim_state_mutex`.
+
 # Resources
 
 1. [Build directory conventions](https://cmake.org/cmake/help/book/mastering-cmake/chapter/Getting%20Started.html)  

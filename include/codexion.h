@@ -150,7 +150,6 @@ bool				run_simulation(t_data *data);
 /*                        CODER                             */
 /* ******************************************************** */
 bool				coder_wait_for_start(t_data *data);
-void				coder_stop_simulation(t_data *data);
 bool				coder_start_compile(t_coder *coder);
 bool				coder_run_compile(t_coder *coder, bool started);
 bool				coder_finish_compile(t_coder *coder, bool completed);
@@ -181,6 +180,7 @@ int					build_waiting_list(t_data *data, long long now);
 int					scheduler_wait(t_data *data);
 t_request_result	scheduler_process_request(t_coder *coder);
 bool				scheduler_release_dongles(t_coder *coder);
+void				scheduler_clear_queue(t_data *data);
 
 /* ******************************************************** */
 /*                       MONITOR                            */

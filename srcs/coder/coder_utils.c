@@ -38,14 +38,6 @@ bool	coder_wait_for_start(t_data *data)
 	return (ready);
 }
 
-void	coder_stop_simulation(t_data *data)
-{
-	request_stop(data);
-	pthread_mutex_lock(&data->scheduler.request_queue_mutex);
-	pthread_cond_broadcast(&data->scheduler.request_queue_cond);
-	pthread_mutex_unlock(&data->scheduler.request_queue_mutex);
-}
-
 bool	coder_start_compile(t_coder *coder)
 {
 	t_request_result	result;

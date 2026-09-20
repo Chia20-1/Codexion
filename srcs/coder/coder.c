@@ -53,7 +53,7 @@ void	*coder_routine(void *argument)
 	coder = (t_coder *)argument;
 	if (!coder_wait_for_start(coder->data))
 	{
-		coder_stop_simulation(coder->data);
+		request_stop(coder->data);
 		return (NULL);
 	}
 	cycles = 0;
@@ -63,7 +63,7 @@ void	*coder_routine(void *argument)
 		if (!coder_compile(coder) || !coder_debug(coder)
 			|| !coder_refactor(coder))
 		{
-			coder_stop_simulation(coder->data);
+			request_stop(coder->data);
 			break ;
 		}
 		cycles++;
