@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 20:48:57 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/19 20:48:57 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 14:11:53 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ bool	coder_start_compile(t_coder *coder)
 			{
 				coder->last_compile_start = now;
 				started = (pthread_cond_broadcast(
-					&coder->data->monitor.wakeup_cond) == 0);
+							&coder->data->monitor.wakeup_cond) == 0);
 			}
 		}
 		pthread_mutex_unlock(&coder->data->monitor.sim_state_mutex);
@@ -89,7 +89,7 @@ bool	coder_finish_compile(t_coder *coder, bool completed)
 	{
 		coder->compile_count++;
 		notified = (pthread_cond_broadcast(
-			&coder->data->monitor.wakeup_cond) == 0);
+					&coder->data->monitor.wakeup_cond) == 0);
 	}
 	pthread_mutex_unlock(&coder->data->monitor.sim_state_mutex);
 	if (coder->request->dongles_granted)

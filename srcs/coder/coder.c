@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 15:21:05 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/15 18:20:09 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 14:11:18 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ static bool	coder_compile(t_coder *coder)
 	return (completed);
 }
 
-static bool coder_debug(t_coder *coder)
+static bool	coder_debug(t_coder *coder)
 {
 	if (simulation_should_stop(coder->data))
 		return (false);
@@ -35,7 +35,7 @@ static bool coder_debug(t_coder *coder)
 	return (!simulation_should_stop(coder->data));
 }
 
-static bool coder_refactor(t_coder *coder)
+static bool	coder_refactor(t_coder *coder)
 {
 	if (simulation_should_stop(coder->data))
 		return (false);
