@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/15 20:30:52 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/18 20:44:14 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 14:38:06 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,11 +69,11 @@ static t_request_result	wait_for_grant(t_coder *coder)
 	queue = &data->scheduler;
 	while (true)
 	{
-		if (simulation_should_stop(data))
+		if (is_stop_requested(data))
 			return (REQUEST_STOPPED);
 		if (!scheduler_grants_request(data))
 			return (REQUEST_ERROR);
-		if (simulation_should_stop(data))
+		if (is_stop_requested(data))
 			return (REQUEST_STOPPED);
 		if (coder->request->dongles_granted)
 			return (REQUEST_GRANTED);

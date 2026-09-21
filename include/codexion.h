@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/18 20:38:08 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 14:38:06 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,7 +185,7 @@ void				scheduler_clear_queue(t_data *data);
 /* ******************************************************** */
 /*                       MONITOR                            */
 /* ******************************************************** */
-bool				simulation_should_stop(t_data *data);
+bool				is_stop_requested(t_data *data);
 void				request_stop(t_data *data);
 void				*monitor_routine(void *argument);
 

@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 20:58:47 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/15 18:20:31 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 14:38:06 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <stdbool.h>
 
 // Getter for run_simulation flag
-bool	simulation_should_stop(t_data *data)
+bool	is_stop_requested(t_data *data)
 {
 	bool	stop;
 
