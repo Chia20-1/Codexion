@@ -14,7 +14,7 @@ still being implemented; these are the locking rules those additions must follow
 
 | Mutex | Variable / resource | Type | Purpose |
 |---|---|---|---|
-| `monitor.sim_state_mutex` | `monitor.should_stop` | `bool` | Whether the simulation must stop |
+| `monitor.sim_state_mutex` | `monitor.state` | `t_sim_state` | Whether the simulation is running, or why it stopped |
 | `monitor.sim_state_mutex` | `monitor.simulation_started` | `bool` | Whether coders may begin their work |
 | `monitor.sim_state_mutex` | `monitor.wait_error` | `int` | Shared condition-wait error code |
 | `monitor.sim_state_mutex` | `coder->last_compile_start` | `long long` | Most recent compile start, read by the scheduler and monitor |
@@ -104,13 +104,52 @@ finish. Only fully completed compiles increase `compile_count`.
 
 # Simulation State
 
-- `RUNNING`: Simulation is active.
-- `COMPLETED`: All coders reached the required compile count.
-- `BURNOUT`: A coder reached its burnout deadline.
-- `ERROR`: An internal operation failed.
+- `SIM_RUNNING`: Simulation has no recorded terminal outcome; initialized before threads start.
+- `SIM_COMPLETED`: All coders reached the required compile count.
+- `SIM_BURNOUT`: A coder reached its burnout deadline.
+- `SIM_ERROR`: An internal operation failed.
 
-Only the first transition from `RUNNING` to a terminal state takes effect.
-Protect the state check and update with `monitor.sim_state_mutex`.
+Only the first transition from `SIM_RUNNING` to a terminal state takes effect.
+Protect both the state check and update with `monitor.sim_state_mutex`, including
+direct assignments in error paths. Later stop requests must not overwrite the
+original outcome. `monitor.wait_error` retains condition-wait error details
+separately from the simulation outcome.
+
+`is_stop_requested(data)` locks the state mutex and returns whether
+`monitor.state != SIM_RUNNING`. When already holding that mutex, compare the
+state directly instead of calling the getter and attempting to lock it again.
+
+### Requesting Stop
+
+```c
+request_stop(data, SIM_ERROR);
+```
+
+`request_stop(t_data *data, t_sim_state reason)` accepts `SIM_COMPLETED`,
+`SIM_BURNOUT`, or `SIM_ERROR`; other values are ignored. Call it without holding
+the state, log, or queue mutex. For a valid reason, it:
+
+1. Locks `sim_state_mutex` and records the reason only if still `SIM_RUNNING`.
+2. Broadcasts `wakeup_cond`, then unlocks the state mutex.
+3. Calls `scheduler_clear_queue()`, which locks the queue mutex, clears queued
+   references, broadcasts `request_queue_cond`, and unlocks the queue mutex.
+
+Repeated valid requests still notify waiters and clear the queue while preserving
+the first terminal outcome. Releasing state before acquiring queue respects the
+lock order used by queue waiters. A granted coder releases its own dongles on
+exit; request storage is freed during cleanup after threads have joined.
+
+The current finite-loop scaffold requests completion after successful coder
+joins. The monitor still waits for a stop request; automatic burnout detection
+and monitor-driven global completion are later Day 5 work. Recording
+`SIM_BURNOUT` alone does not detect or print a burnout.
+
+### Exit Status
+
+`main()` returns `0` for completion or burnout when startup and joins succeed and
+no condition-wait error is recorded. It returns `1` for input, initialization,
+startup, join, or recorded runtime failure. An operational failure can therefore
+produce a nonzero exit status without replacing an earlier terminal outcome.
 
 # Resources
 

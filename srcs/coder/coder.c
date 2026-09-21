@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 15:21:05 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 14:38:06 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 16:38:19 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ void	*coder_routine(void *argument)
 	coder = (t_coder *)argument;
 	if (!coder_wait_for_start(coder->data))
 	{
-		request_stop(coder->data);
+		request_stop(coder->data, SIM_ERROR);
 		return (NULL);
 	}
 	cycles = 0;
@@ -63,7 +63,7 @@ void	*coder_routine(void *argument)
 		if (!coder_compile(coder) || !coder_debug(coder)
 			|| !coder_refactor(coder))
 		{
-			request_stop(coder->data);
+			request_stop(coder->data, SIM_ERROR);
 			break ;
 		}
 		cycles++;

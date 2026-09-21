@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 20:31:55 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/17 16:55:02 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 16:19:09 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ static bool	init_monitor(t_data *data)
 	t_monitor	*monitor;
 
 	monitor = &data->monitor;
-	monitor->should_stop = false;
+	monitor->state = SIM_RUNNING;
 	if (pthread_mutex_init(&monitor->sim_state_mutex, NULL) != 0)
 		return (false);
 	monitor->has_state_mutex = true;

@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 20:48:57 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 14:11:53 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 16:39:21 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,18 +22,21 @@ bool	coder_wait_for_start(t_data *data)
 
 	monitor = &data->monitor;
 	pthread_mutex_lock(&monitor->sim_state_mutex);
-	while (!monitor->simulation_started && !monitor->should_stop)
+	while (!monitor->simulation_started
+		&& monitor->state == SIM_RUNNING)
 	{
 		error = pthread_cond_wait(&monitor->wakeup_cond,
 				&monitor->sim_state_mutex);
 		if (error != 0)
 		{
 			monitor->wait_error = error;
-			monitor->should_stop = true;
+			if (monitor->state == SIM_RUNNING)
+				monitor->state = SIM_ERROR;
+			pthread_cond_broadcast(&monitor->wakeup_cond);
 			break ;
 		}
 	}
-	ready = !monitor->should_stop;
+	ready = (monitor->state == SIM_RUNNING);
 	pthread_mutex_unlock(&monitor->sim_state_mutex);
 	return (ready);
 }
@@ -49,7 +52,7 @@ bool	coder_start_compile(t_coder *coder)
 	if (result == REQUEST_GRANTED)
 	{
 		pthread_mutex_lock(&coder->data->monitor.sim_state_mutex);
-		if (!coder->data->monitor.should_stop)
+		if (coder->data->monitor.state == SIM_RUNNING)
 		{
 			now = get_time_ms();
 			if (now != -1)
@@ -85,7 +88,7 @@ bool	coder_finish_compile(t_coder *coder, bool completed)
 
 	notified = true;
 	pthread_mutex_lock(&coder->data->monitor.sim_state_mutex);
-	if (completed && !coder->data->monitor.should_stop)
+	if (completed && (coder->data->monitor.state == SIM_RUNNING))
 	{
 		coder->compile_count++;
 		notified = (pthread_cond_broadcast(

@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 14:38:06 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 16:26:24 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,14 @@ typedef enum e_request_result
 	REQUEST_STOPPED,
 	REQUEST_ERROR,
 }	t_request_result;
+
+typedef enum e_sim_state
+{
+	SIM_RUNNING,
+	SIM_COMPLETED,
+	SIM_BURNOUT,
+	SIM_ERROR,
+}	t_sim_state;
 
 struct s_config
 {
@@ -77,7 +85,7 @@ struct s_dongle
 
 struct s_monitor
 {
-	bool				should_stop;
+	t_sim_state			state;
 	int					wait_error;
 	pthread_t			thread;
 	pthread_mutex_t		sim_state_mutex;
@@ -186,7 +194,7 @@ void				scheduler_clear_queue(t_data *data);
 /*                       MONITOR                            */
 /* ******************************************************** */
 bool				is_stop_requested(t_data *data);
-void				request_stop(t_data *data);
+void				request_stop(t_data *data, t_sim_state reason);
 void				*monitor_routine(void *argument);
 
 /* ******************************************************** */

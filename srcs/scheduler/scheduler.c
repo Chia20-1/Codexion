@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/15 20:30:52 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 14:38:06 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 16:17:30 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ t_request_result	scheduler_process_request(t_coder *coder)
 	queue = &data->scheduler;
 	pthread_mutex_lock(&queue->request_queue_mutex);
 	pthread_mutex_lock(&data->monitor.sim_state_mutex);
-	if (data->monitor.should_stop)
+	if (data->monitor.state != SIM_RUNNING)
 	{
 		pthread_mutex_unlock(&data->monitor.sim_state_mutex);
 		pthread_mutex_unlock(&queue->request_queue_mutex);
