@@ -15,6 +15,7 @@ THREAD_DIR			= ${SRCS_DIR}thread/
 CODER_DIR			= ${SRCS_DIR}coder/
 HEAP_DIR			= ${SRCS_DIR}heap/
 SCHEDULER_DIR		= ${SRCS_DIR}scheduler/
+MONITOR_DIR			= ${SRCS_DIR}monitor/
 
 # ======= Includes =======
 INC					= -I ${INC_DIR}
@@ -39,18 +40,21 @@ SCHEDULER			=	${SCHEDULER_DIR}scheduler.c\
 						${SCHEDULER_DIR}scheduler_utils.c \
 						${SCHEDULER_DIR}scheduler_stop.c
 
+MONITOR				=	${MONITOR_DIR}monitor.c\
+						${MONITOR_DIR}monitor_utils.c
+
 SRCS 				=	$(SRCS_DIR)main.c \
      					$(SRCS_DIR)cleanup.c \
      					$(SRCS_DIR)time.c \
      					$(SRCS_DIR)log.c \
-     					$(SRCS_DIR)monitor.c \
 						$(SRCS_DIR)dongle.c \
      					$(PARSE) \
      					$(INIT) \
 						$(THREAD) \
 						${CODER} \
 						${HEAP} \
-						${SCHEDULER}
+						${SCHEDULER} \
+						${MONITOR}
 
 BUILD				=	$(SRCS:$(SRCS_DIR)%.c=$(BUILD_DIR)%.o)
 

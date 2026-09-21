@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 15:21:05 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 18:41:21 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 21:17:44 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,21 +43,6 @@ static bool	coder_refactor(t_coder *coder)
 	if (!sleep_ms(coder->data->config.time_to_refactor))
 		return (false);
 	return (!is_stop_requested(coder->data));
-}
-
-bool	all_coders_completed(t_data *data)
-{
-	int	i;
-
-	i = 0;
-	while (i < data->config.number_of_coders)
-	{
-		if (data->coders[i].compile_count
-			< data->config.number_of_compiles_required)
-			return (false);
-		i++;
-	}
-	return (true);
 }
 
 void	*coder_routine(void *argument)

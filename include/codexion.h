@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 19:43:19 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 21:17:52 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,7 +169,6 @@ bool				coder_wait_for_start(t_data *data);
 bool				coder_start_compile(t_coder *coder);
 bool				coder_run_compile(t_coder *coder, bool started);
 bool				coder_finish_compile(t_coder *coder, bool completed);
-bool				all_coders_completed(t_data *data);
 void				*coder_routine(void *argument);
 
 /* ******************************************************** */
@@ -203,6 +202,10 @@ void				scheduler_clear_queue(t_data *data);
 /* ******************************************************** */
 bool				is_stop_requested(t_data *data);
 void				request_stop(t_data *data, t_sim_state reason);
+void				init_scan(t_monitor_scan *scan);
+void				update_scan(t_coder *coder, long long now,
+						t_monitor_scan *scan);
+bool				monitor_wait(t_data *data);
 void				*monitor_routine(void *argument);
 
 /* ******************************************************** */

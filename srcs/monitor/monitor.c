@@ -6,11 +6,12 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 20:58:47 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 19:44:04 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 21:19:50 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
+#include <limits.h>
 #include <pthread.h>
 #include <stdbool.h>
 
@@ -39,26 +40,46 @@ void	request_stop(t_data *data, t_sim_state reason)
 	scheduler_clear_queue(data);
 }
 
-static bool	monitor_wait(t_data *data)
+static bool	scan_coders(t_data *data, long long now, t_monitor_scan *scan)
 {
-	int	error;
+	t_coder		*coder;
+	t_config	*config;
+	int			i;
 
-	error = pthread_cond_wait(&data->monitor.wakeup_cond,
-			&data->monitor.sim_state_mutex);
-	if (error != 0)
+	config = &data->config;
+	init_scan(scan);
+	i = 0;
+	while (i < config->number_of_coders)
 	{
-		data->monitor.wait_error = error;
-		if (data->monitor.state == SIM_RUNNING)
-			data->monitor.state = SIM_ERROR;
-		pthread_cond_broadcast(&data->monitor.wakeup_cond);
-		return (false);
+		coder = &data->coders[i];
+		if (coder->compile_count < config->number_of_compiles_required)
+			scan->all_completed = false;
+		if (coder->last_compile_start > LLONG_MAX - config->time_to_burnout)
+			return (false);
+		update_scan(coder, now, scan);
+		i++;
 	}
 	return (true);
 }
 
-bool scan_coders(t_data *data, long long now, t_monitor_scan *scan)
+static void	monitor_loop(t_data *data)
 {
-		
+	t_monitor_scan	scan;
+	long long		now;
+
+	while (data->monitor.state == SIM_RUNNING)
+	{
+		now = get_time_ms();
+		if (now == -1 || !scan_coders(data, now, &scan))
+			data->monitor.state = SIM_ERROR;
+		else if (scan.victim != NULL)
+			data->monitor.state = SIM_BURNOUT;
+		else if (scan.all_completed)
+			data->monitor.state = SIM_COMPLETED;
+		else if (!monitor_wait(data))
+			break ;
+	}
+	pthread_cond_broadcast(&data->monitor.wakeup_cond);
 }
 
 // 1st wait for creating threads
@@ -75,17 +96,7 @@ void	*monitor_routine(void *argument)
 		if (!monitor_wait(data))
 			break ;
 	}
-	while (data->monitor.state == SIM_RUNNING)
-	{
-		if (all_coders_completed(data))
-		{
-			data->monitor.state = SIM_COMPLETED;
-			pthread_cond_broadcast(&data->monitor.wakeup_cond);
-			break ;
-		}
-		if (!monitor_wait(data))
-			break ;
-	}
+	monitor_loop(data);
 	pthread_mutex_unlock(&data->monitor.sim_state_mutex);
 	scheduler_clear_queue(data);
 	return (NULL);
