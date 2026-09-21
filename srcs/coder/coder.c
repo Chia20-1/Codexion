@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 15:21:05 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 16:38:19 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 18:41:21 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,10 +45,24 @@ static bool	coder_refactor(t_coder *coder)
 	return (!is_stop_requested(coder->data));
 }
 
+bool	all_coders_completed(t_data *data)
+{
+	int	i;
+
+	i = 0;
+	while (i < data->config.number_of_coders)
+	{
+		if (data->coders[i].compile_count
+			< data->config.number_of_compiles_required)
+			return (false);
+		i++;
+	}
+	return (true);
+}
+
 void	*coder_routine(void *argument)
 {
 	t_coder	*coder;
-	int		cycles;
 
 	coder = (t_coder *)argument;
 	if (!coder_wait_for_start(coder->data))
@@ -56,9 +70,7 @@ void	*coder_routine(void *argument)
 		request_stop(coder->data, SIM_ERROR);
 		return (NULL);
 	}
-	cycles = 0;
-	while (cycles < coder->data->config.number_of_compiles_required
-		&& !is_stop_requested(coder->data))
+	while (!is_stop_requested(coder->data))
 	{
 		if (!coder_compile(coder) || !coder_debug(coder)
 			|| !coder_refactor(coder))
@@ -66,7 +78,6 @@ void	*coder_routine(void *argument)
 			request_stop(coder->data, SIM_ERROR);
 			break ;
 		}
-		cycles++;
 	}
 	return (NULL);
 }

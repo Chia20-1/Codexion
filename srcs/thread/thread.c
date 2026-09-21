@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 15:28:06 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 16:42:05 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 18:40:25 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,11 @@ bool	run_simulation(t_data *data)
 	int		coder_error;
 	int		monitor_error;
 
+	if (data->config.number_of_compiles_required == 0)
+	{
+		request_stop(data, SIM_COMPLETED);
+		return (true);
+	}
 	if (!create_monitor(data))
 		return (false);
 	startup_status = create_coders(data) && start_simulation(data);
@@ -80,8 +85,6 @@ bool	run_simulation(t_data *data)
 	coder_error = join_coders(data);
 	if (coder_error != 0)
 		request_stop(data, SIM_ERROR);
-	else
-		request_stop(data, SIM_COMPLETED);
 	monitor_error = join_monitor(data);
 	if (coder_error != 0 || monitor_error != 0)
 		printf("Join errors: coders=%d, monitor=%d\n",

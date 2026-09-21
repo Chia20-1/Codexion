@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 20:58:47 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 16:34:23 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 18:53:06 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,12 @@ void	*monitor_routine(void *argument)
 	}
 	while (data->monitor.state == SIM_RUNNING)
 	{
+		if (all_coders_completed(data))
+		{
+			data->monitor.state = SIM_COMPLETED;
+			pthread_cond_broadcast(&data->monitor.wakeup_cond);
+			break ;
+		}
 		if (!monitor_wait(data))
 			break ;
 	}

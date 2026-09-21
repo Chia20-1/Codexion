@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 16:26:24 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 18:54:41 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,8 @@ struct s_data
 /* ******************************************************** */
 /*                      PARSE INPUT                         */
 /* ******************************************************** */
-void				set_integer_config_value(int value, int index, t_config *config);
+void				set_integer_config_value(int value, int index,
+						t_config *config);
 void				set_llong_config_value(long long value, int index,
 						t_config *config);
 bool				parse_input(int argc, char **argv, t_config *config);
@@ -161,8 +162,8 @@ bool				coder_wait_for_start(t_data *data);
 bool				coder_start_compile(t_coder *coder);
 bool				coder_run_compile(t_coder *coder, bool started);
 bool				coder_finish_compile(t_coder *coder, bool completed);
+bool				all_coders_completed(t_data *data);
 void				*coder_routine(void *argument);
-
 
 /* ******************************************************** */
 /*                        DONGLE                            */
@@ -201,7 +202,8 @@ void				*monitor_routine(void *argument);
 /*                          HEAP                            */
 /* ******************************************************** */
 void				shift_up(t_request **heap, int index, t_policy policy);
-void				shift_down(t_request **heap, int index, int size, t_policy policy);
+void				shift_down(t_request **heap, int index, int size,
+						t_policy policy);
 t_request			*peek_heap(t_data *data);
 t_request			*pop_heap(t_data *data);
 bool				push_heap(t_data *data, t_request *request);
