@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 18:54:41 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 19:43:19 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,13 @@ typedef enum e_sim_state
 	SIM_BURNOUT,
 	SIM_ERROR,
 }	t_sim_state;
+
+typedef struct s_monitor_scan
+{
+	t_coder		*victim;
+	long long	next_deadline;
+	bool		all_completed;
+}	t_monitor_scan;
 
 struct s_config
 {

@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 20:58:47 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 18:53:06 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/21 19:44:04 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,11 @@ static bool	monitor_wait(t_data *data)
 		return (false);
 	}
 	return (true);
+}
+
+bool scan_coders(t_data *data, long long now, t_monitor_scan *scan)
+{
+		
 }
 
 // 1st wait for creating threads
