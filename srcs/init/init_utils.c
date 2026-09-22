@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 17:52:37 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/08 18:05:10 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/22 14:31:08 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,4 +51,12 @@ bool	init_scheduler_cond(t_data *data)
 		return (false);
 	scheduler->has_cond = true;
 	return (true);
+}
+
+void	init_scheduler_policy(t_data *data)
+{
+	if (strcmp(data->config.scheduler, "fifo") == 0)
+		data->scheduler.policy = POLICY_FIFO;
+	else if (strcmp(data->config.scheduler, "edf") == 0)
+		data->scheduler.policy = POLICY_EDF;
 }
