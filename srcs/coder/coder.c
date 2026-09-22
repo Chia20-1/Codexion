@@ -16,13 +16,28 @@
 
 static bool	coder_compile(t_coder *coder)
 {
-	bool	started;
-	bool	completed;
+	t_compile_start	result;
+	bool			completed;
 
-	started = coder_start_compile(coder);
-	completed = coder_run_compile(coder, started);
-	completed = coder_finish_compile(coder, completed);
-	return (completed);
+	result = coder_start_compile(coder);
+	if (result != COMPILE_STARTED)
+	{
+		if (result == COMPILE_ERROR)
+			request_stop(coder->data, SIM_ERROR);
+		if (coder->request->dongles_granted)
+		{
+			if (!scheduler_release_dongles(coder))
+				return (false);
+		}
+		if (result == COMPILE_EXPIRED)
+		{
+			if (!coder_wait_for_stop(coder->data))
+				return (false);
+		}
+		return (false);
+	}
+	completed = coder_wait_compile_duration(coder);
+	return (coder_finish_compile(coder, completed));
 }
 
 static bool	coder_debug(t_coder *coder)
@@ -60,7 +75,8 @@ void	*coder_routine(void *argument)
 		if (!coder_compile(coder) || !coder_debug(coder)
 			|| !coder_refactor(coder))
 		{
-			request_stop(coder->data, SIM_ERROR);
+			if (!is_stop_requested(coder->data))
+				request_stop(coder->data, SIM_ERROR);
 			break ;
 		}
 	}

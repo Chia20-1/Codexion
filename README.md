@@ -76,31 +76,53 @@ again. A wakeup or timeout does not guarantee a grant.
 
 # Coder Compile Cycle
 
-After the start gate:
+After `coder_wait_for_start()` opens the start gate, `coder_routine()` repeats
+compile, debug, and refactor while the simulation is running. The successful
+compile path is:
 
 ```text
-coder_routine()
-    │
-    ├─ scheduler_process_request(coder)
-    │      Wait until granted or stopped/error
-    │
-    ├─ Record compile start and log actions
-    │
-    ├─ Wait for compile duration
-    │
-    ├─ Count the compile if fully completed
-    │
-    ├─ scheduler_release_dongles(coder)
-    │
-    ├─ Debug
-    │
-    └─ Refactor
+coder_compile()
+    ├─ coder_start_compile()
+    │    ├─ scheduler_process_request(): wait for dongles or stop/error
+    │    ├─ lock log_output_mutex, then sim_state_mutex
+    │    ├─ coder_run_compile()
+    │    │    ├─ validate_compile_status(): check state, clock, old deadline
+    │    │    └─ if valid: update timestamp, print start messages, notify
+    │    └─ unlock sim_state_mutex, then log_output_mutex
+    ├─ coder_wait_compile_duration(): sleep without holding mutexes
+    └─ coder_finish_compile()
+         ├─ count a completed compile only while still running; notify
+         └─ release any granted dongles after unlocking state
 ```
 
-Repeat the cycle while running. The coder thread calls the scheduler functions;
-they do not run in a separate scheduler thread. If stop or an error interrupts
-the cycle, release any owned pair before exiting, even if compilation did not
-finish. Only fully completed compiles increase `compile_count`.
+Despite its name, `coder_run_compile()` performs the protected start transition;
+`coder_wait_compile_duration()` performs the activity wait. Start logging uses
+direct printing because both mutexes are already held. Calling `log_status()`
+there would attempt to lock them again. Debugging and refactoring still use
+`log_status()`.
+
+The previous deadline is `last_compile_start + time_to_burnout`. If
+`now >= deadline`, the coder must not reset its timestamp or print compile-start
+messages. `coder_run_compile()` notifies the monitor and returns
+`COMPILE_EXPIRED`, leaving the old timestamp intact.
+
+When a start is rejected, `coder_compile()` skips the duration and finish calls:
+
+| Start result | Action |
+|---|---|
+| `COMPILE_EXPIRED` | Release any granted pair, then call `coder_wait_for_stop()` so the monitor can record and announce burnout. |
+| `COMPILE_STOPPED` | Release any granted pair and exit the compile path. |
+| `COMPILE_ERROR` | Request error shutdown, then release any granted pair. |
+
+`coder_wait_for_stop()` checks state in a loop. Its condition wait releases the
+state mutex while sleeping and reacquires it before rechecking. A release or
+wait failure returns to the worker's error handling; the first terminal state
+is preserved.
+
+The coder thread calls the scheduler functions; they do not run in a separate
+scheduler thread. No state, output, queue, or dongle mutex is held through the
+compile-duration sleep. The current duration helper checks stop before sleeping;
+making the sleep itself stop-aware is Day 5 step 7 work.
 
 # Simulation State
 

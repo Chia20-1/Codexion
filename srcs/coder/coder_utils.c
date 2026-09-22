@@ -41,64 +41,26 @@ bool	coder_wait_for_start(t_data *data)
 	return (ready);
 }
 
-bool	coder_start_compile(t_coder *coder)
+// Wake up the monitor to inform the burnout
+// Release the mutex so the monitor can record burnout
+bool	coder_wait_for_stop(t_data *data)
 {
-	t_request_result	result;
-	long long			now;
-	bool				started;
+	t_monitor	*monitor;
+	int			error;
 
-	started = false;
-	result = scheduler_process_request(coder);
-	if (result == REQUEST_GRANTED)
+	monitor = &data->monitor;
+	pthread_mutex_lock(&monitor->sim_state_mutex);
+	while (monitor->state == SIM_RUNNING)
 	{
-		pthread_mutex_lock(&coder->data->monitor.sim_state_mutex);
-		if (coder->data->monitor.state == SIM_RUNNING)
+		error = pthread_cond_wait(&monitor->wakeup_cond,
+			&monitor->sim_state_mutex);
+		if (error != 0)
 		{
-			now = get_time_ms();
-			if (now != -1)
-			{
-				coder->last_compile_start = now;
-				started = (pthread_cond_broadcast(
-							&coder->data->monitor.wakeup_cond) == 0);
-			}
-		}
-		pthread_mutex_unlock(&coder->data->monitor.sim_state_mutex);
-	}
-	return (started);
-}
-
-bool	coder_run_compile(t_coder *coder, bool started)
-{
-	bool	completed;
-
-	completed = false;
-	if (started)
-	{
-		log_status(coder, "has taken a dongle");
-		log_status(coder, "has taken a dongle");
-		log_status(coder, "is compiling");
-		completed = sleep_ms(coder->data->config.time_to_compile);
-	}
-	return (completed);
-}
-
-bool	coder_finish_compile(t_coder *coder, bool completed)
-{
-	bool	notified;
-
-	notified = true;
-	pthread_mutex_lock(&coder->data->monitor.sim_state_mutex);
-	if (completed && (coder->data->monitor.state == SIM_RUNNING))
-	{
-		coder->compile_count++;
-		notified = (pthread_cond_broadcast(
-					&coder->data->monitor.wakeup_cond) == 0);
-	}
-	pthread_mutex_unlock(&coder->data->monitor.sim_state_mutex);
-	if (coder->request->dongles_granted)
-	{
-		if (!scheduler_release_dongles(coder))
+			monitor->wait_error = error;
+			pthread_mutex_unlock(&monitor->sim_state_mutex);
 			return (false);
+		}
 	}
-	return (completed && notified);
+	pthread_mutex_unlock(&monitor->sim_state_mutex);
+	return (true);
 }

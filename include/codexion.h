@@ -175,9 +175,11 @@ bool				run_simulation(t_data *data);
 /*                        CODER                             */
 /* ******************************************************** */
 bool				coder_wait_for_start(t_data *data);
-bool				coder_start_compile(t_coder *coder);
-bool				coder_run_compile(t_coder *coder, bool started);
+bool				coder_wait_for_stop(t_data *data);
+t_compile_start		coder_start_compile(t_coder *coder);
+t_compile_start		coder_run_compile(t_coder *coder);
 bool				coder_finish_compile(t_coder *coder, bool completed);
+bool				coder_wait_compile_duration(t_coder *coder);
 void				*coder_routine(void *argument);
 
 /* ******************************************************** */

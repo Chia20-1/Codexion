@@ -31,7 +31,8 @@ THREAD				= 	${THREAD_DIR}thread.c \
 						${THREAD_DIR}thread_utils.c
 
 CODER				=	${CODER_DIR}coder.c \
-						${CODER_DIR}coder_utils.c
+						${CODER_DIR}coder_utils.c \
+						${CODER_DIR}coder_compile.c 
 
 HEAP				=	${HEAP_DIR}heap.c\
 						${HEAP_DIR}heap_utils.c
