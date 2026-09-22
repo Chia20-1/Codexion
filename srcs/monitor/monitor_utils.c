@@ -6,14 +6,16 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/21 20:50:31 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 21:09:35 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/22 15:42:44 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
+#include <errno.h>
 #include <limits.h>
+#include <pthread.h>
 
-bool	monitor_wait(t_data *data)
+bool	monitor_wait_start_gate(t_data *data)
 {
 	int	error;
 
@@ -51,4 +53,24 @@ void	update_scan(t_coder *coder, long long now, t_monitor_scan *scan)
 	}
 	else if (deadline < scan->next_deadline)
 		scan->next_deadline = deadline;
+}
+
+bool	monitor_wait_next_dl(t_data *data, long long deadline)
+{
+	struct timespec	timeout;
+	int				error;
+
+	timeout.tv_sec = deadline / 1000;
+	timeout.tv_nsec = (deadline % 1000) * 1000000;
+	error = pthread_cond_timedwait(&data->monitor.wakeup_cond,
+			&data->monitor.sim_state_mutex, &timeout);
+	if (error != 0 && error != ETIMEDOUT)
+	{
+		data->monitor.wait_error = error;
+		if (data->monitor.state == SIM_RUNNING)
+			data->monitor.state = SIM_ERROR;
+		pthread_cond_broadcast(&data->monitor.wakeup_cond);
+		return (false);
+	}
+	return (true);
 }

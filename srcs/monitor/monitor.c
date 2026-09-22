@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 20:58:47 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 21:19:50 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/22 15:42:13 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <limits.h>
 #include <pthread.h>
 #include <stdbool.h>
+#include <time.h>
 
 // Getter for run_simulation flag
 bool	is_stop_requested(t_data *data)
@@ -76,7 +77,7 @@ static void	monitor_loop(t_data *data)
 			data->monitor.state = SIM_BURNOUT;
 		else if (scan.all_completed)
 			data->monitor.state = SIM_COMPLETED;
-		else if (!monitor_wait(data))
+		else if (!monitor_wait_next_dl(data, scan.next_deadline))
 			break ;
 	}
 	pthread_cond_broadcast(&data->monitor.wakeup_cond);
@@ -93,7 +94,7 @@ void	*monitor_routine(void *argument)
 	while (!data->monitor.simulation_started
 		&& (data->monitor.state == SIM_RUNNING))
 	{
-		if (!monitor_wait(data))
+		if (!monitor_wait_start_gate(data))
 			break ;
 	}
 	monitor_loop(data);

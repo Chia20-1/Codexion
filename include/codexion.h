@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/22 14:33:41 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/22 15:42:13 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,7 +206,8 @@ void				request_stop(t_data *data, t_sim_state reason);
 void				init_scan(t_monitor_scan *scan);
 void				update_scan(t_coder *coder, long long now,
 						t_monitor_scan *scan);
-bool				monitor_wait(t_data *data);
+bool				monitor_wait_start_gate(t_data *data);
+bool				monitor_wait_next_dl(t_data *data, long long deadline);
 void				*monitor_routine(void *argument);
 
 /* ******************************************************** */
