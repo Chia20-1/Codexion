@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 21:17:52 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/22 14:33:41 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,6 +150,7 @@ bool				parse_input(int argc, char **argv, t_config *config);
 /*                      INITIALIZE                          */
 /* ******************************************************** */
 void				*ft_calloc(size_t nmemb, size_t size);
+void				init_scheduler_policy(t_data *data);
 bool				init_scheduler_mutex(t_data *data);
 bool				init_scheduler_cond(t_data *data);
 bool				init_data(t_data *data);

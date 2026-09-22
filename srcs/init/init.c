@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 20:31:55 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 16:19:09 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/22 14:33:15 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ static bool	init_scheduler(t_data *data)
 	t_scheduler	*scheduler;
 
 	scheduler = &data->scheduler;
+	init_scheduler_policy(data);
 	scheduler->heap_size = 0;
 	scheduler->heap_capacity = data->config.number_of_coders;
 	scheduler->arrival_counter = 0;
