@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/07 14:08:20 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/08 18:08:56 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/22 17:43:54 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,13 @@ void	log_status(t_coder *coder, const char *status)
 
 	data = coder->data;
 	pthread_mutex_lock(&data->monitor.log_output_mutex);
-	elapsed_ms = get_elapsed_ms(data);
-	if (elapsed_ms != -1)
-		printf("%lld %d %s\n", elapsed_ms, coder->id, status);
+	pthread_mutex_lock(&data->monitor.sim_state_mutex);
+	if (data->monitor.state == SIM_RUNNING)
+	{
+		elapsed_ms = get_elapsed_ms(data);
+		if (elapsed_ms != -1)
+			printf("%lld %d %s\n", elapsed_ms, coder->id, status);
+	}
+	pthread_mutex_unlock(&data->monitor.sim_state_mutex);
 	pthread_mutex_unlock(&data->monitor.log_output_mutex);
 }
