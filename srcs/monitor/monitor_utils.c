@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/21 20:50:31 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/22 15:42:44 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/22 16:42:29 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,28 @@ void	update_scan(t_coder *coder, long long now, t_monitor_scan *scan)
 	}
 	else if (deadline < scan->next_deadline)
 		scan->next_deadline = deadline;
+}
+
+bool	scan_coders(t_data *data, long long now, t_monitor_scan *scan)
+{
+	t_coder		*coder;
+	t_config	*config;
+	int			i;
+
+	config = &data->config;
+	init_scan(scan);
+	i = 0;
+	while (i < config->number_of_coders)
+	{
+		coder = &data->coders[i];
+		if (coder->compile_count < config->number_of_compiles_required)
+			scan->all_completed = false;
+		if (coder->last_compile_start > LLONG_MAX - config->time_to_burnout)
+			return (false);
+		update_scan(coder, now, scan);
+		i++;
+	}
+	return (true);
 }
 
 bool	monitor_wait_next_dl(t_data *data, long long deadline)
