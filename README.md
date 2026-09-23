@@ -1,186 +1,112 @@
 *This project has been created as part of the 42 curriculum by \<chilim>*
 
-# Description
+# Codexion
 
-# Instructions
+## Description
 
-# Mutexes
+A multithreaded simulation where coders share dongles to compile, debug, and
+refactor. Requests use FIFO or earliest-deadline-first (EDF) scheduling. A monitor
+checks for burnout and whether all coders have completed the required compiles.
 
-### Mutex Responsibilities
+## Instructions
 
-The table defines which mutex to hold when reading or writing shared mutable
-state during simulation. Scheduler coordination and compile progress updates are
-still being implemented; these are the locking rules those additions must follow.
+Build with `make`, then run:
 
-| Mutex | Variable / resource | Type | Purpose |
-|---|---|---|---|
-| `monitor.sim_state_mutex` | `monitor.state` | `t_sim_state` | Whether the simulation is running, or why it stopped |
-| `monitor.sim_state_mutex` | `monitor.simulation_started` | `bool` | Whether coders may begin their work |
-| `monitor.sim_state_mutex` | `monitor.wait_error` | `int` | Shared condition-wait error code |
-| `monitor.sim_state_mutex` | `coder->last_compile_start` | `long long` | Most recent compile start, read by the scheduler and monitor |
-| `monitor.sim_state_mutex` | `coder->compile_count` | `int` | Completed compiles, read by the monitor |
-| `monitor.sim_state_mutex` | `data->start_time` | `long long` | Set at startup before publishing `simulation_started`; remains unchanged afterward |
-| `dongle->mutex` | `dongle->current_owner` | `t_coder *` | Coder currently reserving this dongle |
-| `dongle->mutex` | `dongle->cooldown_deadline` | `long long` | Earliest timestamp when this dongle can be acquired again |
-| `scheduler.request_queue_mutex` | `scheduler.request_heap[i]` | `t_request *` | Heap entries and their ordering |
-| `scheduler.request_queue_mutex` | `scheduler.heap_size` | `int` | Number of queued requests |
-| `scheduler.request_queue_mutex` | `scheduler.arrival_counter` | `unsigned long` | Assigns fresh request arrival numbers |
-| `scheduler.request_queue_mutex` | `request->burnout_deadline` | `long long` | Request's deadline key; keep unchanged while queued |
-| `scheduler.request_queue_mutex` | `request->arrival_order` | `unsigned long` | Request's arrival key; keep unchanged while queued |
-| `scheduler.request_queue_mutex` | `request->dongles_granted` | `bool` | Whether the request has received both dongles |
-| `monitor.log_output_mutex` | Status output (`printf`) | Output stream | Serializes status messages; does not protect a struct field |
-
-A mutex does not automatically attach to these variables: every thread must
-follow the same locking agreement. Local copies, such as a local
-`last_compile_start`, do not need a mutex after the protected read.
-
-Values initialized before threads use them and left unchanged, such as `config`,
-`scheduler.policy`, `scheduler.heap_capacity`, and coder/dongle/request links,
-do not need a lock for each read. `data->start_time` is published through the
-startup state lock and can be read without locking after that startup barrier.
-Cleanup reads after all relevant threads have joined also need no lock.
-
-Pair acquisition and release require the queue mutex **and** both distinct
-dongle mutexes. The queue mutex coordinates scheduling; each dongle mutex
-protects that dongle's fields.
-
-### Mutex Flow
-
-```
-ACQUIRE
-──────────────────────────────►
-
-request_queue → dongle[low] → dongle[high] → log → state
-
-
-RELEASE
-◄──────────────────────────────
-
-request_queue ← dongle[low] ← dongle[high] ← log ← state
+```sh
+./codexion <coders> <burnout_ms> <compile_ms> <debug_ms> <refactor_ms> <required_compiles> <cooldown_ms> <fifo|edf>
 ```
 
-# Scheduler Flow
+All eight arguments are required; times are in milliseconds. Use `make clean`
+to remove build files or `make fclean` to also remove the executable.
+
+## How It Works
 
 ```text
-Lock queue → enqueue once → arbitrate → granted?
-                              ↑           │
-                              │           ├─ yes → unlock queue → return
-                              │           │
-                              └── wake ── wait
-                                         releases queue while sleeping
+Wait for startup → request dongles → validate and start compile
+                 → finish compile → release dongles → debug → refactor → repeat
 ```
 
-The wait reacquires `request_queue_mutex` before returning. After waking, the
-coder checks stop and runs arbitration again; it does not enqueue its request
-again. A wakeup or timeout does not guarantee a grant.
+### Scheduling
 
-# Coder Compile Cycle
+Coder threads call the scheduler directly; there is no separate scheduler thread.
+Each request is enqueued once and waits for both dongles. A condition wait
+releases the queue mutex while sleeping and reacquires it before returning.
+After waking, the coder checks for shutdown and retries arbitration: a wakeup
+alone does not guarantee a grant.
 
-After `coder_wait_for_start()` opens the start gate, `coder_routine()` repeats
-compile, debug, and refactor while the simulation is running. The successful
-compile path is:
+### Why Check the Deadline Again?
+
+A grant gives permission to compile, but does not guarantee immediate execution.
+The OS scheduler may delay the coder, and it must acquire the log and state
+mutexes before starting. The deadline could pass during that delay.
+
+Before updating `last_compile_start`, the coder checks:
 
 ```text
-coder_compile()
-    ├─ coder_start_compile()
-    │    ├─ scheduler_process_request(): wait for dongles or stop/error
-    │    ├─ lock log_output_mutex, then sim_state_mutex
-    │    ├─ coder_run_compile()
-    │    │    ├─ validate_compile_status(): check state, clock, old deadline
-    │    │    └─ if valid: update timestamp, print start messages, notify
-    │    └─ unlock sim_state_mutex, then log_output_mutex
-    ├─ coder_wait_compile_duration(): sleep without holding mutexes
-    └─ coder_finish_compile()
-         ├─ count a completed compile only while still running; notify
-         └─ release any granted dongles after unlocking state
+deadline = last_compile_start + time_to_burnout
+expired  = now >= deadline
 ```
 
-Despite its name, `coder_run_compile()` performs the protected start transition;
-`coder_wait_compile_duration()` performs the activity wait. Start logging uses
-direct printing because both mutexes are already held. Calling `log_status()`
-there would attempt to lock them again. Debugging and refactoring still use
-`log_status()`.
+If expired, it returns `COMPILE_EXPIRED`, notifies the monitor, releases its
+dongles, and waits for shutdown. It preserves the old timestamp and prints no
+compile-start messages, allowing the monitor to detect and announce burnout.
 
-The previous deadline is `last_compile_start + time_to_burnout`. If
-`now >= deadline`, the coder must not reset its timestamp or print compile-start
-messages. `coder_run_compile()` notifies the monitor and returns
-`COMPILE_EXPIRED`, leaving the old timestamp intact.
+Otherwise, it updates the timestamp, logs the start, and sleeps without holding
+mutexes. Afterward, it counts the completed compile only if the simulation is
+still running, notifies the monitor, and releases the dongles.
 
-When a start is rejected, `coder_compile()` skips the duration and finish calls:
+Activity sleeps currently finish their full duration; they are not interrupted
+by shutdown.
 
-| Start result | Action |
+## Synchronization
+
+Every thread must follow the same locking agreement:
+
+| Mutex | Protects |
 |---|---|
-| `COMPILE_EXPIRED` | Release any granted pair, then call `coder_wait_for_stop()` so the monitor can record and announce burnout. |
-| `COMPILE_STOPPED` | Release any granted pair and exit the compile path. |
-| `COMPILE_ERROR` | Request error shutdown, then release any granted pair. |
+| `monitor.sim_state_mutex` | Simulation state, startup flag, wait errors, coder timestamps and compile counts; publishes `start_time` at startup |
+| `scheduler.request_queue_mutex` | Request heap, heap size, arrival counter, request deadline/order and grant flag |
+| `dongle->mutex` | Dongle owner and cooldown deadline |
+| `monitor.log_output_mutex` | Status output |
 
-`coder_wait_for_stop()` checks state in a loop. Its condition wait releases the
-state mutex while sleeping and reacquires it before rechecking. A release or
-wait failure returns to the worker's error handling; the first terminal state
-is preserved.
+Acquire nested locks in this order:
 
-The coder thread calls the scheduler functions; they do not run in a separate
-scheduler thread. No state, output, queue, or dongle mutex is held through the
-compile-duration sleep. The current duration helper checks stop before sleeping;
-making the sleep itself stop-aware is Day 5 step 7 work.
-
-# Simulation State
-
-- `SIM_RUNNING`: Simulation has no recorded terminal outcome; initialized before threads start.
-- `SIM_COMPLETED`: All coders reached the required compile count.
-- `SIM_BURNOUT`: A coder reached its burnout deadline.
-- `SIM_ERROR`: An internal operation failed.
-
-Only the first transition from `SIM_RUNNING` to a terminal state takes effect.
-Protect both the state check and update with `monitor.sim_state_mutex`, including
-direct assignments in error paths. Later stop requests must not overwrite the
-original outcome. `monitor.wait_error` retains condition-wait error details
-separately from the simulation outcome.
-
-`is_stop_requested(data)` locks the state mutex and returns whether
-`monitor.state != SIM_RUNNING`. When already holding that mutex, compare the
-state directly instead of calling the getter and attempting to lock it again.
-
-### Requesting Stop
-
-```c
-request_stop(data, SIM_ERROR);
+```text
+request_queue → dongle[low] → dongle[high] → log → state
 ```
 
-`request_stop(t_data *data, t_sim_state reason)` accepts `SIM_COMPLETED`,
-`SIM_BURNOUT`, or `SIM_ERROR`; other values are ignored. Call it without holding
-the state, log, or queue mutex. For a valid reason, it:
+- Acquiring or releasing a dongle pair requires the queue mutex and both distinct dongle mutexes.
+- Condition waits release their mutex while sleeping and reacquire it before rechecking state.
+- Immutable configuration and local copies need no lock; `start_time` is immutable after the startup barrier.
+- Do not call `log_status()` or `is_stop_requested()` while holding the mutexes they acquire. Compile-start logging prints directly because log and state are already locked.
 
-1. Locks `sim_state_mutex` and records the reason only if still `SIM_RUNNING`.
-2. Broadcasts `wakeup_cond`, then unlocks the state mutex.
-3. Calls `scheduler_clear_queue()`, which locks the queue mutex, clears queued
-   references, broadcasts `request_queue_cond`, and unlocks the queue mutex.
+## Shutdown
 
-Repeated valid requests still notify waiters and clear the queue while preserving
-the first terminal outcome. Releasing state before acquiring queue respects the
-lock order used by queue waiters. A granted coder releases its own dongles on
-exit; request storage is freed during cleanup after threads have joined.
+| State | Meaning |
+|---|---|
+| `SIM_RUNNING` | No terminal outcome recorded |
+| `SIM_COMPLETED` | All coders reached the required compile count |
+| `SIM_BURNOUT` | A coder reached its deadline |
+| `SIM_ERROR` | An internal operation failed |
 
-The current finite-loop scaffold requests completion after successful coder
-joins. The monitor still waits for a stop request; automatic burnout detection
-and monitor-driven global completion are later Day 5 work. Recording
-`SIM_BURNOUT` alone does not detect or print a burnout.
+The first terminal state wins. State checks and updates use `sim_state_mutex`;
+later errors must not overwrite the original outcome.
 
-### Exit Status
+Call `request_stop(data, reason)` without holding the state, log, or queue mutex.
+It records the first valid stop reason, wakes monitor waiters, then clears the
+request queue and wakes scheduler waiters. Each coder releases its granted
+dongles; cleanup frees request storage after threads join.
 
-`main()` returns `0` for completion or burnout when startup and joins succeed and
-no condition-wait error is recorded. It returns `1` for input, initialization,
-startup, join, or recorded runtime failure. An operational failure can therefore
-produce a nonzero exit status without replacing an earlier terminal outcome.
+Exit status is `0` for completion or burnout when startup and joins succeed
+without a recorded wait error, or `1` for input, initialization, thread, or
+recorded runtime failures.
 
-# Resources
+## Resources
 
-1. [Build directory conventions](https://cmake.org/cmake/help/book/mastering-cmake/chapter/Getting%20Started.html)  
-   Explains the use of a separate build directory for generated files, such as object files (`.o`), static libraries (`.a`), and executables. Inspired my choice of `build/` as the folder name.
-
-2. [Pthreads fundamentals](https://www.youtube.com/watch?v=uA8X5zNOGw8&list=PL9IEJIKnBJjFZxuqyJ9JqVYmuFZHr7CFM)  
-   Covers thread creation, joining threads, passing arguments to thread routines, concurrency versus parallelism, debugging, and checking for memory leaks in multithreaded programs.
+- [Build directory conventions](https://cmake.org/cmake/help/book/mastering-cmake/chapter/Getting%20Started.html) — inspired the separate `build/` directory.
+- [Pthreads fundamentals](https://www.youtube.com/watch?v=uA8X5zNOGw8&list=PL9IEJIKnBJjFZxuqyJ9JqVYmuFZHr7CFM) — threads, synchronization, debugging, and memory leaks.
 
 ### AI Usage
-1. Generate learning modules and self-practice exercises to help me master each external function listed in the subject before starting the project.
-2. Create a table summarizing each mutex’s purpose and the shared data it protects.
+
+Used to generate learning exercises for external functions, summarize mutex
+responsibilities, and refine README explanations and structure.
