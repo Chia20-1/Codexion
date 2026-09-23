@@ -19,20 +19,71 @@ Build with `make`, then run:
 All eight arguments are required; times are in milliseconds. Use `make clean`
 to remove build files or `make fclean` to also remove the executable.
 
-## How It Works
+## Function Flow
+
+### Main Thread: Startup and Cleanup
 
 ```text
-Wait for startup → request dongles → validate and start compile
-                 → finish compile → release dongles → debug → refactor → repeat
+main()
+├─ parse_input() → init_data()
+├─ run_simulation()
+│  ├─ create_monitor() → pthread_create(monitor_routine)
+│  ├─ create_coders()  → pthread_create(coder_routine) for each coder
+│  ├─ start_simulation()
+│  │  └─ set timestamps and simulation_started → broadcast wakeup_cond
+│  ├─ join_coders()  → wait for workers to exit
+│  └─ join_monitor() → wait for monitor to exit
+└─ cleanup_data()
 ```
 
-### Scheduling
+This is the normal startup path with a nonzero compile requirement. The coder
+and monitor routines run in separate threads. `start_simulation()` opens their
+startup gate; main then waits while they work.
 
-Coder threads call the scheduler directly; there is no separate scheduler thread.
-Each request is enqueued once and waits for both dongles. A condition wait
-releases the queue mutex while sleeping and reacquires it before returning.
-After waking, the coder checks for shutdown and retries arbitration: a wakeup
-alone does not guarantee a grant.
+### Coder Thread: Request and Compile
+
+```text
+coder_routine()
+├─ coder_wait_for_start()
+└─ repeat while running:
+   ├─ coder_compile()
+   │  ├─ coder_start_compile()
+   │  │  ├─ scheduler_process_request()
+   │  │  │  ├─ queue_request() → push_heap()
+   │  │  │  └─ wait_for_grant()
+   │  │  │     ├─ scheduler_grants_request()
+   │  │  │     │  ├─ build_waiting_list() → dongle_pair_try_acquire()
+   │  │  │     │  └─ push waiting requests back into the heap
+   │  │  │     └─ if not granted: scheduler_wait() → recheck stop/retry
+   │  │  └─ if granted: coder_run_compile() → validate_compile_status()
+   │  └─ if started: coder_wait_compile_duration()
+   │     └─ sleep_ms() → count if completed and running → release dongles
+   ├─ coder_debug()
+   └─ coder_refactor()
+```
+
+Scheduler functions run in the calling coder thread. Requests are enqueued once;
+condition waits release the queue mutex and reacquire it before returning.
+A wakeup alone does not guarantee a grant.
+
+### Monitor Thread: Burnout and Shutdown
+
+```text
+monitor_routine()
+├─ wait for startup gate
+├─ monitor_loop()
+│  ├─ monitor_check() → scan_coders()
+│  │  ├─ expired coder: set scan->victim → record SIM_BURNOUT → print burnout
+│  │  └─ all completed: record SIM_COMPLETED
+│  ├─ still running: monitor_wait_next_dl() → wake/timeout → check again
+│  └─ stopped: broadcast wakeup_cond → leave loop
+└─ scheduler_clear_queue() → clear requests → broadcast request_queue_cond
+```
+
+Workers observe stop, release any reserved dongles, and return so main can finish
+joining them. With **one coder**, left and right are the same dongle, so pair
+acquisition fails before locking. Its request stays pending until the monitor
+detects burnout and wakes the queue waiter to exit.
 
 ### Why Check the Deadline Again?
 
@@ -55,8 +106,8 @@ Otherwise, it updates the timestamp, logs the start, and sleeps without holding
 mutexes. Afterward, it counts the completed compile only if the simulation is
 still running, notifies the monitor, and releases the dongles.
 
-Activity sleeps currently finish their full duration; they are not interrupted
-by shutdown.
+Activity sleeps check stop between short waits, allowing shutdown before the
+full duration finishes. Interrupted compiles are not counted.
 
 ## Synchronization
 
