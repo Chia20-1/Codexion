@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/05 19:06:26 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/08 18:09:10 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/23 17:13:44 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,24 +38,26 @@ long long	get_elapsed_ms(t_data *data)
 	return (current - data->start_time);
 }
 
-bool	sleep_ms(long long duration_ms)
+t_sleep_result	sleep_ms(t_data *data, long long duration_ms)
 {
 	long long	start;
-	long long	current;
+	long long	now;
 
 	if (duration_ms <= 0)
-		return (true);
+		return (SLEEP_COMPLETED);
 	start = get_time_ms();
 	if (start == -1)
-		return (false);
+		return (SLEEP_ERROR);
 	while (true)
 	{
-		current = get_time_ms();
-		if (current == -1)
-			return (false);
-		if (current - start >= duration_ms)
-			return (true);
+		if (is_stop_requested(data))
+			return (SLEEP_STOPPED);
+		now = get_time_ms();
+		if (now == -1)
+			return (SLEEP_ERROR);
+		if (now - start >= duration_ms)
+			return (SLEEP_COMPLETED);
 		if (usleep(1000) == -1)
-			return (false);
+			return (SLEEP_ERROR);
 	}
 }

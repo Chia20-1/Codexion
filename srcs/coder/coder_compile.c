@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/22 23:39:32 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/22 23:39:32 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/23 17:08:07 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,8 @@ t_compile_start	validate_compile_status(t_coder *coder, long long now)
 	if (now == -1)
 		return (COMPILE_ERROR);
 	if (coder->last_compile_start
-        > LLONG_MAX - data->config.time_to_burnout)
-        return (COMPILE_ERROR);
+		> LLONG_MAX - data->config.time_to_burnout)
+		return (COMPILE_ERROR);
 	deadline = coder->last_compile_start + data->config.time_to_burnout;
 	if (now >= deadline)
 		return (COMPILE_EXPIRED);
@@ -78,30 +78,28 @@ t_compile_start	coder_run_compile(t_coder *coder)
 	return (result);
 }
 
-bool	coder_finish_compile(t_coder *coder, bool completed)
+bool	coder_wait_compile_duration(t_coder *coder)
 {
-	bool	notified;
+	t_sleep_result	result;
+	t_data			*data;
+	bool			notified;
 
+	data = coder->data;
 	notified = true;
-	pthread_mutex_lock(&coder->data->monitor.sim_state_mutex);
-	if (completed && (coder->data->monitor.state == SIM_RUNNING))
+	result = sleep_ms(data, data->config.time_to_compile);
+	if (result == SLEEP_ERROR)
+		request_stop(data, SIM_ERROR);
+	pthread_mutex_lock(&data->monitor.sim_state_mutex);
+	if (result == SLEEP_COMPLETED && data->monitor.state == SIM_RUNNING)
 	{
 		coder->compile_count++;
-		notified = (pthread_cond_broadcast(
-					&coder->data->monitor.wakeup_cond) == 0);
+		notified = (pthread_cond_broadcast(&data->monitor.wakeup_cond) == 0);
 	}
-	pthread_mutex_unlock(&coder->data->monitor.sim_state_mutex);
+	pthread_mutex_unlock(&data->monitor.sim_state_mutex);
 	if (coder->request->dongles_granted)
 	{
 		if (!scheduler_release_dongles(coder))
 			return (false);
 	}
-	return (completed && notified);
-}
-
-bool	coder_wait_compile_duration(t_coder *coder)
-{
-	if (is_stop_requested(coder->data))
-		return (false);
-	return (sleep_ms(coder->data->config.time_to_compile));
+	return ((result == SLEEP_COMPLETED) && notified);
 }

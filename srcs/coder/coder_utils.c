@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 20:48:57 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/22 19:04:46 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/23 16:58:00 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ bool	coder_wait_for_stop(t_data *data)
 	while (monitor->state == SIM_RUNNING)
 	{
 		error = pthread_cond_wait(&monitor->wakeup_cond,
-			&monitor->sim_state_mutex);
+				&monitor->sim_state_mutex);
 		if (error != 0)
 		{
 			monitor->wait_error = error;

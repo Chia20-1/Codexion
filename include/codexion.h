@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/22 18:33:24 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/23 17:00:11 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,13 @@ typedef enum e_compile_start
 	COMPILE_STOPPED,
 	COMPILE_ERROR
 }	t_compile_start;
+
+typedef enum e_sleep_result
+{
+	SLEEP_COMPLETED,
+	SLEEP_STOPPED,
+	SLEEP_ERROR,
+}	t_sleep_result;
 
 typedef struct s_monitor_scan
 {
@@ -177,8 +184,8 @@ bool				run_simulation(t_data *data);
 bool				coder_wait_for_start(t_data *data);
 bool				coder_wait_for_stop(t_data *data);
 t_compile_start		coder_start_compile(t_coder *coder);
+t_compile_start		validate_compile_status(t_coder *coder, long long now);
 t_compile_start		coder_run_compile(t_coder *coder);
-bool				coder_finish_compile(t_coder *coder, bool completed);
 bool				coder_wait_compile_duration(t_coder *coder);
 void				*coder_routine(void *argument);
 
@@ -193,7 +200,7 @@ bool				dongle_pair_release(t_coder *coder, long long release_time);
 /* ******************************************************** */
 long long			get_time_ms(void);
 long long			get_elapsed_ms(t_data *data);
-bool				sleep_ms(long long duration_ms);
+t_sleep_result		sleep_ms(t_data *data, long long duration_ms);
 void				log_status(t_coder *coder, const char *status);
 
 /* ******************************************************** */

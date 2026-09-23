@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 15:21:05 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 21:17:44 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/23 17:12:10 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 static bool	coder_compile(t_coder *coder)
 {
 	t_compile_start	result;
-	bool			completed;
 
 	result = coder_start_compile(coder);
 	if (result != COMPILE_STARTED)
@@ -36,26 +35,31 @@ static bool	coder_compile(t_coder *coder)
 		}
 		return (false);
 	}
-	completed = coder_wait_compile_duration(coder);
-	return (coder_finish_compile(coder, completed));
+	return (coder_wait_compile_duration(coder));
 }
 
 static bool	coder_debug(t_coder *coder)
 {
+	t_data	*data;
+
+	data = coder->data;
 	if (is_stop_requested(coder->data))
 		return (false);
 	log_status(coder, "is debugging");
-	if (!sleep_ms(coder->data->config.time_to_debug))
+	if (sleep_ms(data, data->config.time_to_debug) != SLEEP_COMPLETED)
 		return (false);
 	return (!is_stop_requested(coder->data));
 }
 
 static bool	coder_refactor(t_coder *coder)
 {
+	t_data	*data;
+
+	data = coder->data;
 	if (is_stop_requested(coder->data))
 		return (false);
 	log_status(coder, "is refactoring");
-	if (!sleep_ms(coder->data->config.time_to_refactor))
+	if (sleep_ms(data, data->config.time_to_refactor) != SLEEP_COMPLETED)
 		return (false);
 	return (!is_stop_requested(coder->data));
 }
