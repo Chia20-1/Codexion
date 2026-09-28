@@ -37,7 +37,6 @@ typedef enum e_policy
 typedef enum e_request_result
 {
 	REQUEST_GRANTED,
-	REQUEST_WAITING,
 	REQUEST_STOPPED,
 	REQUEST_ERROR,
 }	t_request_result;

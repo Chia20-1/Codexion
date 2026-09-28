@@ -14,14 +14,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-t_request	*peek_heap(t_data *data)
-{
-	if (!(data->scheduler.request_heap)
-		|| data->scheduler.heap_size == 0)
-		return (NULL);
-	return (data->scheduler.request_heap[0]);
-}
-
 t_request	*pop_heap(t_data *data)
 {
 	t_scheduler	*queue;

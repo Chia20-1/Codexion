@@ -62,11 +62,9 @@ static bool	queue_request(t_coder *coder, long long last_start)
 static t_request_result	wait_for_grant(t_coder *coder)
 {
 	t_data		*data;
-	t_scheduler	*queue;
 	int			error;
 
 	data = coder->data;
-	queue = &data->scheduler;
 	while (true)
 	{
 		if (is_stop_requested(data))
