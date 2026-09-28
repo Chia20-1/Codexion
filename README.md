@@ -71,7 +71,7 @@ Deadlock requires all four conditions to hold.
 |---|---|
 | **Dongles** | Hold the queue mutex and both dongle mutexes when reserving or releasing a pair. Reserve both or neither. |
 | **Logging** | Hold the log mutex across related messages; also hold the state mutex during the state check and printing. |
-| **Monitor state** | Use `sim_state_mutex` for coder timestamps, compile counts, and simulation state so reads and updates cannot race. |
+| **Simulation state** | Use `sim_state_mutex` for coder timestamps, compile counts, and simulation state so reads and updates cannot race. |
 
 ### Race Condition Prevention
 - Coders and the monitor hold sim_state_mutex when accessing timestamps and compile counts, preventing reads during updates.
@@ -195,7 +195,6 @@ still running, notifies the monitor, and releases the dongles.
 Activity sleeps check stop between short waits, allowing shutdown before the
 full duration finishes. Interrupted compiles are not counted.
 
-
 ### Shutdown
 
 | State | Meaning |
@@ -215,6 +214,46 @@ dongles; cleanup frees request storage after threads join.
 Exit status is `0` for completion or burnout when startup and joins succeed
 without a recorded wait error, or `1` for input, initialization, thread, or
 recorded runtime failures.
+
+
+## Burnout Detection
+
+The subject requires the burnout message within 10 ms of the actual burnout
+deadline. The monitor waits until the nearest deadline or a notification, but
+OS scheduling, mutex contention, and output can delay reporting. Code inspection
+alone does not confirm this timing requirement; measure it over repeated runs.
+
+Start with one coder:
+
+```sh
+./codexion 1 200 100 100 100 1 0 fifo
+```
+
+One coder cannot acquire two distinct dongles, so it never compiles and its
+burnout deadline is 200 ms after simulation start. For example, `201 1 burned out`
+means a logged delay of 1 ms. A timestamp from 200 through 210 ms meets the limit
+for that run; repeat the test rather than relying on one result.
+
+For multiple coder:
+
+```sh
+./codexion 2 200 300 100 100 1 0 fifo
+```
+
+Alternatively, use the burned-out coder's latest `is compiling` timestamp:
+
+```text
+deadline = last compile-start timestamp + time_to_burnout
+logged delay = burnout timestamp - deadline
+```
+Use 0 as the initial compile-start timestamp if that coder never compiled.
+Repeat with both FIFO and EDF and different coder counts. Check that the logged
+delay is between 0 and 10 ms.
+
+The printed timestamp is sampled before `printf()`; it does not measure exactly
+when the message becomes visible. Redirected output may also be buffered, so
+these log checks alone do not prove display timing. No timing-test results are
+claimed here.
 
 ## Resources
 
