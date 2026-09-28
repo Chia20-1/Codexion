@@ -13,6 +13,7 @@
 #include "codexion.h"
 #include <pthread.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 
 static bool	create_coders(t_data *data)

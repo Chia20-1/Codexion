@@ -14,6 +14,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 void	*ft_calloc(size_t nmemb, size_t size)

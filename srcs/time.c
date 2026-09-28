@@ -12,6 +12,7 @@
 
 #include "codexion.h"
 #include <limits.h>
+#include <stddef.h>
 #include <sys/time.h>
 #include <unistd.h>
 

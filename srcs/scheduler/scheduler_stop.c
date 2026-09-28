@@ -12,6 +12,7 @@
 
 #include "codexion.h"
 #include <pthread.h>
+#include <stddef.h>
 
 void	scheduler_clear_queue(t_data *data)
 {

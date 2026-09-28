@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "codexion.h"
-#include <errno.h>
+#include <stddef.h>
 #include <time.h>
 
 bool	requests_share_dongle(t_request *a, t_request *b)

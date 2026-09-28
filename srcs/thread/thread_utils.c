@@ -13,6 +13,7 @@
 #include "codexion.h"
 #include <pthread.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 int	join_coders(t_data *data)
 {

@@ -11,8 +11,9 @@
 /* ************************************************************************** */
 
 #include "codexion.h"
-#include <limits.h>
 #include <errno.h>
+#include <limits.h>
+#include <stddef.h>
 
 static bool	scheduler_grants_request(t_data *data)
 {

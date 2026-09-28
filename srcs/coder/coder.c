@@ -12,7 +12,7 @@
 
 #include "codexion.h"
 #include <stdbool.h>
-#include <unistd.h>
+#include <stddef.h>
 
 static bool	coder_compile(t_coder *coder)
 {

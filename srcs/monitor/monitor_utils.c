@@ -14,6 +14,8 @@
 #include <errno.h>
 #include <limits.h>
 #include <pthread.h>
+#include <stddef.h>
+#include <time.h>
 
 bool	monitor_wait_start_gate(t_data *data)
 {

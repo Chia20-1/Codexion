@@ -15,7 +15,7 @@
 
 # include <pthread.h>
 # include <stdbool.h>
-# include <stdlib.h>
+# include <stddef.h>
 
 /* ******************************************************** */
 /*                    STRUCT CONTAINERS                     */

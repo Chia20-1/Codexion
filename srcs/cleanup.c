@@ -12,6 +12,7 @@
 
 #include "codexion.h"
 #include <pthread.h>
+#include <stdlib.h>
 
 static void	cleanup_monitor(t_data *data)
 {

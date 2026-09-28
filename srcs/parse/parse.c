@@ -13,7 +13,6 @@
 #include "codexion.h"
 #include <limits.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <string.h>
 
 static bool	parse_scheduler(char *str, t_config *config)

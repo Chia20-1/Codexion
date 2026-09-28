@@ -11,11 +11,10 @@
 /* ************************************************************************** */
 
 #include "codexion.h"
-#include <limits.h>
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <time.h>
+#include <stddef.h>
 
 // Getter for run_simulation flag
 bool	is_stop_requested(t_data *data)

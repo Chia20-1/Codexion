@@ -12,6 +12,7 @@
 
 #include "codexion.h"
 #include <stdbool.h>
+#include <stddef.h>
 #include <limits.h>
 
 static bool	dongle_is_available(t_dongle *dongle, long long now)
