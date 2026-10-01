@@ -6,11 +6,13 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 16:46:22 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/18 20:29:47 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/29 15:38:52 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
+#include <pthread.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <time.h>
 

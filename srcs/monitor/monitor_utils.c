@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/21 20:50:31 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/22 16:42:29 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/29 15:38:24 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <pthread.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <time.h>
 

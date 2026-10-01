@@ -6,11 +6,12 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/14 17:47:36 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/15 18:11:15 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/29 15:32:12 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
+#include <pthread.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <limits.h>

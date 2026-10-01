@@ -6,12 +6,13 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 20:35:22 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/17 16:54:24 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/29 15:37:40 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 #include <pthread.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 static void	cleanup_monitor(t_data *data)

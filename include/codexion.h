@@ -6,7 +6,7 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:11:41 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/23 17:00:11 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/29 15:44:40 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -234,7 +234,6 @@ void				*monitor_routine(void *argument);
 void				shift_up(t_request **heap, int index, t_policy policy);
 void				shift_down(t_request **heap, int index, int size,
 						t_policy policy);
-t_request			*peek_heap(t_data *data);
 t_request			*pop_heap(t_data *data);
 bool				push_heap(t_data *data, t_request *request);
 

@@ -2,6 +2,7 @@
 NAME 				= codexion
 CC 					= cc
 CFLAGS 				= -Wall -Wextra -Werror -pthread
+DEBUG_FLAGS			= -g
 RM 					= rm
 RFLAGS				= -rf
 
@@ -75,6 +76,9 @@ clean:
 fclean: 			clean
 						${RM} $(RFLAGS) $(NAME)
 
+debug: fclean
+	$(MAKE) --no-print-directory CFLAGS="$(CFLAGS) $(DEBUG_FLAGS)" all
+
 re: 				fclean all
 
-.PHONY: 			all clean fclean re
+.PHONY: 			all clean fclean re debug

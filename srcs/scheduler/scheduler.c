@@ -6,13 +6,15 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/15 20:30:52 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/21 16:17:30 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/29 15:38:39 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 #include <errno.h>
 #include <limits.h>
+#include <pthread.h>
+#include <stdbool.h>
 #include <stddef.h>
 
 static bool	scheduler_grants_request(t_data *data)

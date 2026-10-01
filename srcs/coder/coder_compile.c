@@ -6,13 +6,14 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/22 23:39:32 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/23 17:08:07 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/29 15:37:54 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 #include <limits.h>
 #include <pthread.h>
+#include <stdbool.h>
 #include <stdio.h>
 
 t_compile_start	coder_start_compile(t_coder *coder)

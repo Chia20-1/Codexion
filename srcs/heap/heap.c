@@ -6,13 +6,13 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/12 16:11:44 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/13 21:44:40 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/29 15:33:29 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 t_request	*pop_heap(t_data *data)
 {

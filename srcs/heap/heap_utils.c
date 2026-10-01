@@ -6,11 +6,12 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/12 16:29:58 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/13 21:44:52 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/29 15:38:12 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
+#include <stdbool.h>
 
 static void	swap_request(t_request **a, t_request **b)
 {

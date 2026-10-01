@@ -6,12 +6,13 @@
 /*   By: chilim <chilim@student.42kl.edu.my>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/05 19:06:26 by chilim            #+#    #+#             */
-/*   Updated: 2026/09/23 17:13:44 by chilim           ###   ########.fr       */
+/*   Updated: 2026/09/29 15:39:19 by chilim           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 #include <limits.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <sys/time.h>
 #include <unistd.h>
